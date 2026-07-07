@@ -1,0 +1,1422 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wild Lama — Tesorería e Inversión de Excedentes</title>
+
+<!-- Fuentes de marca (Minion Pro local) + utilitarias por CDN con fallback -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@500;600;700&family=Oswald:wght@400;500;600&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   Wild Lama — Tesorería.
+   Sistema de diseño Wild Lama: tinta almost-black, papel bone/cream,
+   acento OITNB naranja con uso discreto, tonos tierra para riesgo.
+   ============================================================ */
+
+/* --- Fuente de marca Minion Pro (local, con fallback serif) --- */
+@font-face{font-family:'Minion Pro';src:url('fonts/MinionPro-Regular.otf') format('opentype');font-weight:400;font-style:normal;font-display:swap;}
+@font-face{font-family:'Minion Pro';src:url('fonts/MinionPro-Semibold.otf') format('opentype');font-weight:600;font-style:normal;font-display:swap;}
+@font-face{font-family:'Minion Pro Cn';src:url('fonts/MinionPro-SemiboldCn.otf') format('opentype');font-weight:600;font-style:normal;font-display:swap;}
+
+:root{
+  /* Paleta financiera: azul marino, grises y burdeo */
+  --navy:#20304A;
+  --navy-deep:#16233A;
+  --navy-soft:#3A4E6B;
+  --burgundy:#7C2E3C;
+  --burgundy-deep:#5C2029;
+  --burgundy-dust:#9C5A64;
+
+  --almost-black:var(--navy);
+  --slate:#45566E;
+  --bone:#F3F4F6;
+  --cream:#F5F6F8;
+  --ash:#2B3542;
+  --fog:#AAB2BD;
+  /* aliases retenidos por compatibilidad */
+  --oitnb:var(--burgundy);
+  --rust:var(--burgundy);
+  --copper:var(--burgundy-dust);
+  --tan:#C2C7CE;
+  --olive:#6B7688;
+  --sage:#3A4E6B;
+
+  /* Semánticos */
+  --bg:var(--bone);
+  --surface:#FFFFFF;
+  --surface-2:#FAFBFC;
+  --ink:#1C2733;
+  --ink-muted:#59636F;
+  --ink-subtle:#8B94A0;
+  --accent:var(--burgundy);
+  --accent-deep:var(--burgundy-deep);
+  --border:rgba(28,39,51,.14);
+  --border-strong:rgba(28,39,51,.42);
+  --rule:#20304A;
+  --row-alt:rgba(28,39,51,.028);
+
+  /* Riesgo (navy → gris → burdeo) */
+  --risk-top:#20304A;    /* AAA — navy */
+  --risk-high:#3A4E6B;   /* AAA/AA — navy suave */
+  --risk-mid:#6B7688;    /* AA — gris pizarra */
+  --risk-warn:#9C5A64;   /* precaución — burdeo apagado */
+  --risk-bad:#7C2E3C;    /* riesgo — burdeo */
+
+  --danger:#7C2E3C;
+  --warn:#9C5A64;
+  --ok:#20304A;
+
+  --font-display:"Minion Pro Cn","Minion Pro",Georgia,serif;
+  --font-serif:"Minion Pro",Georgia,"Times New Roman",serif;
+  --font-label:"Big Shoulders Display","Oswald","Helvetica Neue",Arial,sans-serif;
+  --font-ui:"Roboto","Helvetica Neue",Arial,system-ui,sans-serif;
+  --font-mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--bg);color:var(--ink);
+  font-family:var(--font-ui);font-size:14px;line-height:1.5;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+}
+h1,h2,h3,h4{margin:0;line-height:1.15;font-weight:600;}
+h1,h2{font-family:var(--font-display);letter-spacing:-.01em;font-weight:600;}
+h3,h4{font-family:var(--font-serif);}
+.num{font-variant-numeric:tabular-nums;}
+button{font-family:var(--font-ui);cursor:pointer;}
+a{color:var(--ink);text-underline-offset:3px;transition:color .14s;}
+a:hover{color:var(--accent);}
+
+.eyebrow{font-family:var(--font-label);font-weight:600;text-transform:uppercase;letter-spacing:.2em;font-size:11px;color:var(--accent);}
+.caps{font-family:var(--font-label);text-transform:uppercase;letter-spacing:.16em;}
+
+.wrap{max-width:1440px;margin:0 auto;padding:0 32px;}
+@media(max-width:768px){.wrap{padding:0 16px;}}
+
+/* ---------- Header ---------- */
+header.app{background:var(--navy);border-bottom:1px solid var(--navy-deep);}
+header.app .btn{background:transparent;border-color:var(--cream);color:var(--cream);}
+header.app .btn:hover{background:var(--cream);border-color:var(--cream);color:var(--navy);}
+.header-top{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;padding:20px 0 14px;flex-wrap:wrap;}
+.brand .eyebrow{margin-bottom:6px;color:#D19AA4;}
+.brand h1{font-size:27px;color:var(--cream);}
+.brand p{margin:5px 0 0;color:#B7C0CC;font-size:13.5px;font-family:var(--font-serif);font-style:italic;}
+.header-status{text-align:right;font-size:12px;color:#B7C0CC;min-width:220px;}
+.header-status .status-line{margin:2px 0;}
+.status-badge{display:inline-block;padding:3px 10px;font-size:10.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;font-family:var(--font-label);border:1px solid var(--border-strong);}
+.status-badge.loading{background:#EDEFF3;color:var(--navy-soft);border-color:var(--navy-soft);}
+.status-badge.ok{background:#E7ECF2;color:var(--navy);border-color:var(--navy);}
+.status-badge.error{background:#F4E7EA;color:var(--burgundy);border-color:var(--burgundy);}
+
+.btn{border:1.5px solid var(--navy);background:var(--navy);color:var(--cream);padding:8px 16px;font-size:11.5px;font-weight:600;font-family:var(--font-label);text-transform:uppercase;letter-spacing:.12em;transition:background .14s,border-color .14s,color .14s;}
+.btn:hover{background:var(--accent);border-color:var(--accent);}
+.btn.ghost{background:transparent;color:var(--navy);}
+.btn.ghost:hover{background:var(--ink);color:var(--cream);}
+.btn.sm{padding:6px 11px;font-size:10.5px;}
+.btn.accent{background:var(--accent);border-color:var(--accent);}
+.btn.accent:hover{background:var(--accent-deep);border-color:var(--accent-deep);}
+.btn:disabled{opacity:.45;cursor:not-allowed;}
+
+/* Macro cards */
+.macro-row{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.18);margin-bottom:16px;}
+@media(max-width:900px){.macro-row{grid-template-columns:repeat(2,1fr);}}
+.macro-card{background:var(--surface);padding:11px 14px;}
+.macro-card .m-name{font-family:var(--font-label);font-size:10.5px;text-transform:uppercase;letter-spacing:.14em;color:var(--ink-muted);font-weight:600;}
+.macro-card .m-val{font-family:var(--font-serif);font-size:22px;font-weight:600;margin:4px 0 2px;font-variant-numeric:tabular-nums;}
+.macro-card .m-date{font-size:10.5px;color:var(--ink-subtle);}
+.macro-card.ref .m-val{color:var(--copper);}
+
+.legal-banner{border-top:1px solid rgba(255,255,255,.14);padding:9px 0 12px;font-size:11px;color:#AEB6C0;line-height:1.5;}
+.legal-banner .l2{color:#8D97A3;}
+
+/* ---------- Tabs ---------- */
+nav.tabs{background:var(--surface);border-bottom:1px solid var(--rule);position:sticky;top:0;z-index:50;}
+.tabs-inner{display:flex;gap:4px;overflow-x:auto;}
+.tab-btn{background:transparent;border:none;border-bottom:2px solid transparent;padding:13px 18px;font-family:var(--font-label);text-transform:uppercase;letter-spacing:.13em;font-size:12.5px;font-weight:600;color:var(--ink-muted);white-space:nowrap;transition:color .14s,border-color .14s;}
+.tab-btn:hover{color:var(--ink);}
+.tab-btn.active{color:var(--ink);border-bottom-color:var(--accent);}
+
+.tab-panel{display:none;padding:26px 0 72px;}
+.tab-panel.active{display:block;}
+
+#errorBar{display:none;background:#F6E7DE;border:1px solid var(--rust);color:var(--rust);padding:11px 16px;margin:16px 0;font-size:13px;align-items:center;justify-content:space-between;gap:14px;}
+#errorBar.show{display:flex;}
+
+/* Section shell */
+.section{border:1px solid var(--border);background:var(--surface);margin-bottom:22px;}
+.section-head{padding:15px 18px;border-bottom:1px solid var(--rule);display:flex;align-items:baseline;justify-content:space-between;gap:14px;flex-wrap:wrap;}
+.section-head h2{font-size:21px;}
+.section-head .sub{font-size:12.5px;color:var(--ink-muted);margin-top:4px;font-family:var(--font-serif);font-style:italic;}
+.section-body{padding:18px;}
+.sec-eyebrow{display:block;margin-bottom:2px;}
+
+/* ---------- Capital box (Monto a invertir) ---------- */
+.capital-box{border:1.5px solid var(--rule);background:var(--surface-2);padding:20px 22px;margin-bottom:22px;display:flex;gap:26px;align-items:center;flex-wrap:wrap;}
+.capital-box .cap-left{flex:1;min-width:280px;}
+.capital-box .cap-left .eyebrow{margin-bottom:6px;}
+.capital-box h2{font-size:23px;margin-bottom:4px;}
+.capital-box p{font-size:12.5px;color:var(--ink-muted);margin:0;max-width:420px;font-family:var(--font-serif);}
+.cap-input-wrap{display:flex;flex-direction:column;gap:6px;}
+.cap-input-wrap label{font-family:var(--font-label);text-transform:uppercase;letter-spacing:.14em;font-size:10.5px;color:var(--ink-muted);font-weight:600;}
+.cap-input{font-family:var(--font-serif);font-size:34px;font-weight:600;font-variant-numeric:tabular-nums;border:none;border-bottom:2.5px solid var(--ink);background:transparent;color:var(--ink);padding:2px 4px 6px;width:340px;max-width:100%;}
+.cap-input:focus{outline:none;border-bottom-color:var(--accent);}
+.cap-hint{font-size:11.5px;color:var(--ink-subtle);}
+.cap-hint b{color:var(--ink);}
+
+/* KPIs */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin-bottom:22px;}
+@media(max-width:1000px){.kpi-grid{grid-template-columns:repeat(2,1fr);}}
+.kpi{background:var(--surface);padding:13px 15px;}
+.kpi .k-label{font-family:var(--font-label);font-size:10.5px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.12em;font-weight:600;}
+.kpi .k-val{font-family:var(--font-serif);font-size:25px;font-weight:600;margin-top:6px;font-variant-numeric:tabular-nums;}
+
+/* Charts */
+.scatter-wrap{position:relative;width:100%;overflow-x:auto;}
+.scatter-tooltip{position:fixed;pointer-events:none;z-index:200;background:var(--almost-black);color:var(--cream);padding:9px 11px;font-size:11.5px;line-height:1.45;max-width:270px;box-shadow:var(--shadow-2,0 6px 18px -10px rgba(33,33,31,.4));display:none;}
+.legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:12px;font-size:11.5px;color:var(--ink-muted);}
+.legend .li{display:flex;align-items:center;gap:6px;}
+.legend .dot{width:10px;height:10px;border-radius:50%;display:inline-block;}
+
+.hbar-row{display:flex;align-items:center;gap:12px;margin:8px 0;font-size:12.5px;}
+.hbar-label{width:160px;flex:none;color:var(--ink-muted);}
+.hbar-track{flex:1;background:var(--bone);height:18px;overflow:hidden;position:relative;border:1px solid var(--border);}
+.hbar-fill{height:100%;background:var(--slate);}
+.hbar-val{width:74px;flex:none;text-align:right;font-variant-numeric:tabular-nums;}
+
+.stacked{display:flex;height:30px;overflow:hidden;border:1px solid var(--rule);}
+.stacked .seg{height:100%;display:flex;align-items:center;justify-content:center;color:var(--cream);font-size:11px;font-weight:600;overflow:hidden;white-space:nowrap;}
+.stacked-legend{display:flex;flex-wrap:wrap;gap:18px;margin-top:12px;font-size:12px;}
+.stacked-legend .li{display:flex;align-items:center;gap:7px;}
+.stacked-legend .sq{width:12px;height:12px;flex:none;}
+
+/* Alerts */
+.alert{display:flex;gap:11px;padding:11px 13px;margin:9px 0;font-size:12.5px;border:1px solid var(--border);border-left:3px solid var(--copper);background:var(--surface-2);align-items:flex-start;}
+.alert .a-mark{font-weight:700;color:var(--copper);flex:none;font-family:var(--font-label);}
+.alert-ok{padding:11px 13px;font-size:12.5px;color:var(--navy);background:#E7ECF2;border:1px solid var(--navy);border-left-width:3px;}
+
+/* Risk badge */
+.risk-badge{display:inline-block;padding:2px 8px;font-family:var(--font-label);text-transform:uppercase;letter-spacing:.08em;font-size:10px;font-weight:600;color:var(--cream);white-space:nowrap;}
+.riskbar{display:inline-flex;height:9px;width:120px;border:1px solid var(--border);overflow:hidden;vertical-align:middle;}
+.riskbar span{height:100%;}
+.tramo-tag{display:inline-block;padding:1px 7px;font-family:var(--font-label);text-transform:uppercase;letter-spacing:.08em;font-size:9.5px;font-weight:600;border:1px solid var(--border-strong);}
+.tramo-tag.t1{background:var(--almost-black);color:var(--cream);border-color:var(--almost-black);}
+.tramo-tag.t2{background:var(--slate);color:var(--cream);border-color:var(--slate);}
+
+/* ---------- Filters ---------- */
+.filters{border:1px solid var(--border);background:var(--surface);margin-bottom:18px;}
+.filters-head{display:flex;align-items:center;justify-content:space-between;padding:13px 18px;cursor:pointer;}
+.filters-head h3{font-size:15px;font-family:var(--font-serif);}
+.filters-head .chev{color:var(--ink-muted);font-size:12px;transition:transform .2s;}
+.filters.collapsed .chev{transform:rotate(-90deg);}
+.filters-body{padding:0 18px 16px;display:grid;grid-template-columns:repeat(3,1fr);gap:18px 24px;}
+@media(max-width:900px){.filters-body{grid-template-columns:1fr 1fr;}}
+@media(max-width:600px){.filters-body{grid-template-columns:1fr;}}
+.filters.collapsed .filters-body,.filters.collapsed .filter-actions{display:none;}
+.fg-label{display:block;font-family:var(--font-label);font-size:10.5px;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);font-weight:600;margin-bottom:7px;}
+.check-list{max-height:140px;overflow-y:auto;border:1px solid var(--border);padding:7px 9px;background:var(--bg);}
+.check-item{display:flex;align-items:center;gap:8px;font-size:12.5px;padding:2px 0;}
+.check-item input{margin:0;accent-color:var(--accent);}
+.range-row{display:flex;gap:8px;align-items:center;}
+input[type=text],input[type=number],select{font-family:var(--font-ui);font-size:13px;padding:7px 9px;border:1px solid var(--border-strong);background:var(--surface-2);color:var(--ink);width:100%;}
+input:focus,select:focus{outline:none;border-color:var(--accent);}
+.input-unit{display:flex;align-items:center;gap:7px;}
+.input-unit .unit{font-size:11px;color:var(--ink-muted);white-space:nowrap;}
+.filter-actions{display:flex;gap:10px;flex-wrap:wrap;padding:0 18px 15px;}
+
+/* ---------- Tables ---------- */
+.table-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:11px;}
+.table-toolbar .count{font-size:12.5px;color:var(--ink-muted);font-family:var(--font-serif);}
+.table-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.table-scroll{overflow-x:auto;border:1px solid var(--rule);max-height:70vh;overflow-y:auto;}
+table.data{border-collapse:collapse;width:100%;font-size:12.5px;}
+table.data thead th{background:var(--almost-black);color:var(--cream);font-weight:600;text-align:left;padding:9px 11px;position:sticky;top:0;z-index:10;white-space:nowrap;font-size:10.5px;font-family:var(--font-label);text-transform:uppercase;letter-spacing:.08em;border-right:1px solid rgba(251,247,239,.12);cursor:pointer;user-select:none;}
+table.data thead th.no-sort{cursor:default;}
+table.data thead th .sort-ind{color:var(--oitnb);font-size:9px;margin-left:4px;}
+table.data tbody td{padding:7px 11px;border-bottom:1px solid var(--border);white-space:nowrap;height:34px;max-width:280px;overflow:hidden;text-overflow:ellipsis;}
+table.data tbody tr:nth-child(even){background:var(--row-alt);}
+table.data tbody tr:hover{background:rgba(124,46,60,.06);}
+td.right,th.right{text-align:right;font-variant-numeric:tabular-nums;}
+td.trunc{max-width:230px;}
+td.trunc:hover{overflow:visible;white-space:normal;}
+.empty-state{padding:44px 20px;text-align:center;color:var(--ink-muted);font-size:14px;font-family:var(--font-serif);font-style:italic;}
+
+/* ---------- Tramos ---------- */
+.tramo-card{border:1px solid var(--border);background:var(--surface);margin-bottom:22px;}
+.tramo-card .t-head{padding:15px 18px;border-bottom:1px solid var(--rule);border-left:4px solid var(--almost-black);}
+.tramo-card.t2 .t-head{border-left-color:var(--slate);}
+.tramo-card .t-head h2{font-size:20px;}
+.tramo-card .t-head p{font-size:12.5px;color:var(--ink-muted);margin:6px 0 0;max-width:820px;font-family:var(--font-serif);}
+.tramo-body{padding:18px;}
+.amount-row{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-bottom:16px;}
+.amount-row .fg{max-width:300px;flex:1;min-width:210px;}
+.amount-row label{display:block;font-family:var(--font-label);font-size:10.5px;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);font-weight:600;margin-bottom:7px;}
+.alloc-status{font-size:12px;font-weight:600;padding:7px 11px;font-family:var(--font-label);letter-spacing:.06em;text-transform:uppercase;}
+.alloc-status.bad{background:#F4E7EA;color:var(--burgundy);border:1px solid var(--burgundy);}
+.alloc-status.good{background:#E7ECF2;color:var(--navy);border:1px solid var(--navy);}
+.pct-input{width:76px;}
+.summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin-top:16px;}
+@media(max-width:1000px){.summary-grid{grid-template-columns:repeat(2,1fr);}}
+.summary-cell{background:var(--surface-2);padding:10px 12px;}
+.summary-cell .s-label{font-family:var(--font-label);font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-muted);font-weight:600;}
+.summary-cell .s-val{font-family:var(--font-serif);font-size:17px;font-weight:600;margin-top:4px;font-variant-numeric:tabular-nums;}
+.disclaimer{border:1px solid var(--burgundy);border-left-width:4px;background:#F7EDEF;color:var(--burgundy-deep);padding:13px 15px;font-size:12.5px;line-height:1.6;margin-top:20px;font-family:var(--font-serif);}
+
+/* Reglas */
+.rule-block{margin-bottom:26px;}
+.rule-block h3{font-size:17px;margin-bottom:10px;}
+.rule-item{border-left:3px solid var(--almost-black);padding:8px 0 8px 15px;margin:11px 0;}
+.rule-item.t2{border-left-color:var(--slate);}
+.rule-item .r-title{font-weight:600;font-size:14px;font-family:var(--font-serif);}
+.rule-item .r-why{font-size:12.5px;color:var(--ink-muted);margin-top:3px;font-family:var(--font-serif);}
+.excl-list li,.consid-list li{margin:7px 0;font-size:13.5px;font-family:var(--font-serif);}
+.reglas-note{font-size:12.5px;color:var(--ink-muted);border-top:1px solid var(--rule);margin-top:22px;padding-top:15px;font-style:italic;font-family:var(--font-serif);}
+
+/* Memo */
+#memo-content{background:var(--surface-2);border:1px solid var(--border);padding:46px 50px;max-width:920px;margin:0 auto;}
+#memo-content h2.memo-title{font-family:var(--font-display);font-size:27px;text-align:center;}
+#memo-content .memo-date{text-align:center;color:var(--ink-muted);font-size:13px;margin:8px 0 30px;font-family:var(--font-serif);}
+#memo-content h3.memo-h{font-family:var(--font-serif);font-size:16px;margin:26px 0 9px;border-bottom:1px solid var(--rule);padding-bottom:6px;}
+#memo-content p{font-family:var(--font-serif);font-size:14px;line-height:1.65;margin:9px 0;}
+#memo-content table.memo-tbl{border-collapse:collapse;width:100%;font-size:12px;margin:11px 0;font-family:var(--font-ui);}
+#memo-content table.memo-tbl th{background:var(--bone);border:1px solid var(--border-strong);padding:6px 8px;text-align:left;font-size:10.5px;font-family:var(--font-label);text-transform:uppercase;letter-spacing:.06em;}
+#memo-content table.memo-tbl td{border:1px solid var(--border);padding:5px 8px;}
+.memo-signatures{margin-top:44px;}
+.memo-signatures p{margin:26px 0;font-size:14px;}
+.memo-foot{margin-top:32px;font-size:11px;color:var(--ink-subtle);text-align:center;border-top:1px solid var(--border);padding-top:13px;font-family:var(--font-ui);}
+.print-bar{max-width:920px;margin:0 auto 16px;display:flex;justify-content:flex-end;}
+.loading-note{padding:34px;text-align:center;color:var(--ink-muted);font-size:14px;font-family:var(--font-serif);font-style:italic;}
+
+/* ---------- Print ---------- */
+@media print{
+  @page{size:A4;margin:16mm 14mm;}
+  body{background:#fff;color:#000;font-size:11pt;}
+  header.app,nav.tabs,.legal-banner,#errorBar,.print-bar,.no-print{display:none !important;}
+  .tab-panel{display:none !important;}
+  #tab-memo{display:block !important;padding:0 !important;}
+  #memo-content{border:none;padding:0;max-width:none;margin:0;background:#fff;font-family:var(--font-serif);}
+  #memo-content h2.memo-title,#memo-content h3.memo-h{color:#000;}
+  #memo-content table.memo-tbl th{background:#eee !important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .memo-section{break-inside:avoid;}
+  table.memo-tbl tr{break-inside:avoid;}
+  #memo-content h3.memo-h{break-after:avoid;}
+}
+</style>
+</head>
+<body>
+
+<!-- ==================== HEADER ==================== -->
+<header class="app">
+  <div class="wrap">
+    <div class="header-top">
+      <div class="brand">
+        <span class="eyebrow">Wild Lama · Finanzas Corporativas y Tesorería</span>
+        <h1>Inversión Fondos Wild Lama</h1>
+        <p>Herramienta interna de análisis para fondos mutuos de deuda</p>
+      </div>
+      <div class="header-status">
+        <div class="status-line"><span id="statusBadge" class="status-badge loading">Cargando</span></div>
+        <div class="status-line" id="statusFecha">Fecha del dato: —</div>
+        <div class="status-line" id="statusActualizado">Actualizado: —</div>
+        <div class="status-line" style="margin-top:9px;"><button class="btn sm" id="btnRefresh">Refrescar datos</button></div>
+      </div>
+    </div>
+
+    <div class="macro-row" id="macroRow"></div>
+
+    <div class="legal-banner">
+      <div class="l2">Datos base: CMF Chile — Estudios de Rentabilidades, Costos y Cartera, vía Apps Script Wild Lama.</div>
+    </div>
+  </div>
+</header>
+
+<!-- ==================== TABS ==================== -->
+<nav class="tabs">
+  <div class="wrap">
+    <div class="tabs-inner">
+      <button class="tab-btn active" data-tab="dashboard">Dashboard</button>
+      <button class="tab-btn" data-tab="explorador">Explorador</button>
+      <button class="tab-btn" data-tab="inversiones">Inversiones actuales</button>
+      <button class="tab-btn" data-tab="tramos">Asignación por tramos</button>
+      <button class="tab-btn" data-tab="reglas">Reglas de elegibilidad</button>
+      <button class="tab-btn" data-tab="memo">Memo para aprobación</button>
+    </div>
+  </div>
+</nav>
+
+<div class="wrap">
+  <div id="errorBar"><span id="errorMsg">Error de conexión.</span><button class="btn sm" id="btnRetry">Reintentar</button></div>
+</div>
+
+<!-- ==================== TAB: DASHBOARD ==================== -->
+<section class="tab-panel active" id="tab-dashboard">
+  <div class="wrap">
+
+    <!-- Monto a invertir -->
+    <div class="capital-box">
+      <div class="cap-left">
+        <span class="eyebrow">Punto de partida</span>
+        <h2>Monto a invertir</h2>
+        <p>Ingresa a mano el excedente de caja que quieres analizar. Se usa en la asignación por tramos y en el memo de aprobación.</p>
+      </div>
+      <div class="cap-input-wrap">
+        <label for="capitalInput">Excedente disponible (CLP)</label>
+        <input type="text" inputmode="numeric" id="capitalInput" class="cap-input num" placeholder="$0" autocomplete="off">
+        <span class="cap-hint" id="capitalHint">Aún no has asignado este monto a tramos.</span>
+      </div>
+    </div>
+
+    <div class="kpi-grid" id="kpiGrid"></div>
+
+    <!-- Fondos recomendables -->
+    <div class="section">
+      <div class="section-head">
+        <div>
+          <span class="eyebrow sec-eyebrow">Universo elegible</span>
+          <h2>Fondos recomendables para invertir</h2>
+          <div class="sub">Series de deuda que cumplen las reglas de tesorería, ordenadas por rentabilidad neta referencial. Cada fila muestra su nivel de riesgo y la composición crediticia de la cartera.</div>
+        </div>
+        <span class="count" id="recomCount" style="font-family:var(--font-serif);font-size:12.5px;color:var(--ink-muted)"></span>
+      </div>
+      <div class="section-body">
+        <div class="table-scroll" style="max-height:520px">
+          <table class="data" id="recomTable"><thead id="recomHead"></thead><tbody id="recomBody"></tbody></table>
+        </div>
+        <div class="legend" id="riskLegend"></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-head"><div><span class="eyebrow sec-eyebrow">Panorama</span><h2>Matriz Liquidez–Rentabilidad</h2><div class="sub">Mayor duración implica menor liquidez relativa. La rentabilidad histórica no garantiza resultados futuros.</div></div></div>
+      <div class="section-body">
+        <div class="scatter-wrap"><svg id="scatterSvg" width="100%" height="420" role="img" aria-label="Matriz Liquidez-Rentabilidad"></svg></div>
+        <div class="legend" id="scatterLegend"></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-head"><div><span class="eyebrow sec-eyebrow">Horizonte</span><h2>Distribución por tramo</h2></div></div>
+      <div class="section-body" id="tramoDist"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-head"><div><span class="eyebrow sec-eyebrow">Cartera promedio</span><h2>Calidad crediticia promedio</h2><div class="sub">Universo filtrado.</div></div></div>
+      <div class="section-body" id="creditQuality"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-head"><div><span class="eyebrow sec-eyebrow">Revisión</span><h2>Panel de alertas</h2></div></div>
+      <div class="section-body" id="alertsPanel"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== TAB: EXPLORADOR ==================== -->
+<section class="tab-panel" id="tab-explorador">
+  <div class="wrap">
+    <div class="filters" id="filtersBox">
+      <div class="filters-head" id="filtersToggle"><h3>Filtros globales</h3><span class="chev">▾</span></div>
+      <div class="filters-body" id="filtersBody"></div>
+      <div class="filter-actions"><button class="btn ghost sm" id="btnResetFilters">Restablecer filtros</button></div>
+    </div>
+
+    <div class="table-toolbar">
+      <div class="count" id="explCount">Mostrando 0 de 0 series según filtros</div>
+      <div class="table-actions">
+        <button class="btn ghost sm" id="btnMoreCols">Ver más columnas</button>
+        <button class="btn ghost sm" id="btnExportCsv">Exportar filtrados a CSV</button>
+      </div>
+    </div>
+
+    <div class="table-scroll">
+      <table class="data" id="explTable"><thead id="explHead"></thead><tbody id="explBody"></tbody></table>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== TAB: INVERSIONES ACTUALES ==================== -->
+<section class="tab-panel" id="tab-inversiones">
+  <div class="wrap">
+    <div class="section">
+      <div class="section-head">
+        <div>
+          <span class="eyebrow sec-eyebrow">Cartera vigente</span>
+          <h2>Inversiones actuales</h2>
+          <div class="sub">Registra los movimientos de la cartera: inversiones (aportes) y retiros, indicando banco/AGF, fondo, serie, monto y fecha. El interés ganado se estima con la Rent365d histórica de cada fondo prorrateada por los días transcurridos (referencial).</div>
+        </div>
+        <div class="table-actions">
+          <button class="btn accent sm" id="btnAddInv">Agregar inversión</button>
+          <button class="btn sm" id="btnAddRet" style="background:var(--burgundy);border-color:var(--burgundy)">Agregar retiro</button>
+          <button class="btn ghost sm" id="btnClearHoldings">Limpiar todo</button>
+        </div>
+      </div>
+      <div class="section-body">
+        <div class="table-scroll" style="max-height:none">
+          <table class="data" id="holdTable"><thead id="holdHead"></thead><tbody id="holdBody"></tbody></table>
+        </div>
+        <p style="font-size:11.5px;color:var(--ink-subtle);margin-top:10px;font-family:var(--font-serif);font-style:italic">El registro es de sesión: se pierde al recargar la página (la herramienta no almacena datos localmente). Los intereses son una estimación referencial, no el valor cuota efectivo.</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-head"><div><span class="eyebrow sec-eyebrow">Resultados</span><h2>Interés ganado por fondo</h2><div class="sub">Capital neto vigente e interés referencial acumulado a la fecha de hoy, por fondo.</div></div></div>
+      <div class="section-body">
+        <div class="table-scroll" style="max-height:none"><table class="data" id="byFundTable"><thead id="byFundHead"></thead><tbody id="byFundBody"></tbody></table></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-head"><div><span class="eyebrow sec-eyebrow">Cartera</span><h2>Resumen consolidado de la cartera</h2></div></div>
+      <div class="section-body" id="holdSummary"></div>
+    </div>
+  </div>
+</section>
+<section class="tab-panel" id="tab-tramos"><div class="wrap" id="tramosWrap"></div></section>
+
+<!-- ==================== TAB: REGLAS ==================== -->
+<section class="tab-panel" id="tab-reglas"><div class="wrap" id="reglasWrap"></div></section>
+
+<!-- ==================== TAB: MEMO ==================== -->
+<section class="tab-panel" id="tab-memo">
+  <div class="wrap">
+    <div class="print-bar no-print"><button class="btn accent" id="btnPrint">Imprimir / Guardar como PDF</button></div>
+    <div id="memo-content"></div>
+  </div>
+</section>
+
+<div class="scatter-tooltip" id="scatterTooltip"></div>
+
+<script>
+/* ============================================================
+   Wild Lama — Tesorería. Lógica de aplicación (JS puro).
+   ============================================================ */
+
+/* Endpoint Apps Script. La hoja Fondos se sirve directamente en /exec.
+   (La hoja Macro no se expone en este deployment — ver MACRO_FALLBACK.) */
+const BASE_URL = "https://script.google.com/macros/s/AKfycbz-dFiG7aQEbncjC5zuJ2CulAH9LgS6-mqsvEqwtpnsxesXnwnGhq0A-2lFdFDfcfkHYA/exec";
+const FONDOS_URL = BASE_URL;
+/* Se prueban variantes por si en el futuro se habilita la hoja Macro. */
+const MACRO_URL_CANDIDATES = [ BASE_URL + "?hoja=Macro", BASE_URL + "?sheet=Macro", BASE_URL + "?tipo=macro" ];
+
+/* Respaldo de indicadores macro (valores del día informados por Tesorería,
+   6-07-2026). Se usan solo si el endpoint no entrega la hoja Macro. */
+const MACRO_FALLBACK = [
+  { indicador:"UF", valor:40836.63, fechaDato:"2026-07-06" },
+  { indicador:"Dólar observado", valor:921.74, fechaDato:"2026-07-06" },
+  { indicador:"Euro", valor:1054.38, fechaDato:"2026-07-06" },
+  { indicador:"UTM", valor:71649.00, fechaDato:"2026-07-01" },
+  { indicador:"IPC (var. mensual %)", valor:0.2, fechaDato:"2026-05-01" }
+];
+
+/* ---------- Estado global ---------- */
+const STATE = {
+  fondos: [], fondosMeta: {}, macro: [], macroOk: false, macroSource: "", loaded: false,
+  capital: 0,
+  holdings: [],
+  holdSeq: 0,
+  filters: null,
+  sort: { col: null, dir: 1 },
+  recomSort: { col: "netaRef", dir: -1 },
+  showMoreCols: false,
+  tramos: { 1:{monto:0,sel:{}}, 2:{monto:0,sel:{}} }
+};
+
+/* ============================================================
+   FORMATEADORES (formato chileno: miles con punto, decimales con coma)
+   ============================================================ */
+const nfInt = new Intl.NumberFormat("es-CL", { maximumFractionDigits:0 });
+const nf2   = new Intl.NumberFormat("es-CL", { minimumFractionDigits:2, maximumFractionDigits:2 });
+const DASH = "—";
+
+function isNullish(v){ return v===null||v===undefined||v===""||(typeof v==="number"&&!isFinite(v)); }
+function toNum(v){
+  if (isNullish(v)) return null;
+  const n = typeof v==="number" ? v : parseFloat(String(v).replace(/\./g,"").replace(",","."));
+  return isFinite(n) ? n : null;
+}
+function fmtPct(v){ if(isNullish(v))return DASH; const n=toNum(v); return n===null?DASH:nf2.format(n*100)+"%"; }
+function fmtInt(v){ if(isNullish(v))return DASH; const n=toNum(v); return n===null?DASH:nfInt.format(Math.round(n)); }
+function fmtNum(v){ if(isNullish(v))return DASH; const n=toNum(v); return n===null?DASH:nfInt.format(n); }
+function fmtCLP(v){ if(isNullish(v))return DASH; const n=toNum(v); return n===null?DASH:"$"+nfInt.format(Math.round(n)); }
+function fmtDec(v){ if(isNullish(v))return DASH; const n=toNum(v); return n===null?DASH:"$"+nf2.format(n); }
+function fmtPatrimonio(v,moneda){
+  if(isNullish(v))return DASH; const n=toNum(v); if(n===null)return DASH;
+  return String(moneda).toUpperCase()==="USD" ? "USD "+nfInt.format(Math.round(n))+" K" : "$"+nfInt.format(Math.round(n))+" MM";
+}
+const MESES=["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+function fmtFechaLarga(d){ const dt=(d instanceof Date)?d:new Date(d); if(isNaN(dt))return"—"; return dt.getDate()+" de "+MESES[dt.getMonth()]+" de "+dt.getFullYear(); }
+/* ISO o fecha -> dd-mm-yyyy (evita desfase de zona horaria en fechas YYYY-MM-DD) */
+function fmtFechaCorta(v){
+  if(isNullish(v))return"—";
+  const s=String(v); const p=n=>String(n).padStart(2,"0");
+  const m=s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if(m) return m[3]+"-"+m[2]+"-"+m[1];
+  const dt=new Date(v); if(isNaN(dt))return s.slice(0,10);
+  return p(dt.getDate())+"-"+p(dt.getMonth()+1)+"-"+dt.getFullYear();
+}
+function fmtTimestamp(v){ if(isNullish(v))return"—"; const dt=new Date(v); if(isNaN(dt))return String(v);
+  return dt.toLocaleString("es-CL",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"}); }
+
+/* ============================================================
+   ESTADÍSTICA
+   ============================================================ */
+function median(a){ const xs=a.filter(x=>x!==null&&isFinite(x)).sort((p,q)=>p-q); if(!xs.length)return null; const m=Math.floor(xs.length/2); return xs.length%2?xs[m]:(xs[m-1]+xs[m])/2; }
+function mean(a){ const xs=a.filter(x=>x!==null&&isFinite(x)); return xs.length?xs.reduce((p,q)=>p+q,0)/xs.length:null; }
+function weightedAvg(pairs){ let sw=0,swv=0; for(const [v,w] of pairs){ if(v===null||!isFinite(v)||!isFinite(w)||w<=0)continue; sw+=w; swv+=v*w; } return sw>0?swv/sw:null; }
+
+/* ============================================================
+   CARGA DE DATOS
+   ============================================================ */
+async function fetchJson(url){ const r=await fetch(url,{redirect:"follow"}); if(!r.ok)throw new Error("HTTP "+r.status); return await r.json(); }
+function normalizeFondos(json){
+  const datos=Array.isArray(json)?json:(json.datos||json.data||[]);
+  return datos.map((row,i)=>({ ...row, _id:(row.FondoRUN!=null?"r"+row.FondoRUN+"-"+(row.Serie||""):"i"+i) }));
+}
+function extractMacro(json){
+  const rows=Array.isArray(json)?json:(json.datos||json.data||[]);
+  if(!Array.isArray(rows)||!rows.length)return null;
+  const keys=Object.keys(rows[0]).map(k=>k.toLowerCase());
+  if(!(keys.some(k=>k.includes("indicador"))||keys.some(k=>k==="valor")))return null;
+  return rows.map(r=>{ const g=names=>{for(const n of names)for(const k of Object.keys(r))if(k.toLowerCase()===n)return r[k];return null;};
+    return { indicador:g(["indicador"])??"", valor:g(["valor"]), fechaDato:g(["fecha dato","fechadato","fecha_dato","fecha"]), actualizado:g(["actualizado"]) }; });
+}
+
+async function loadAll(){
+  setStatus("loading"); hideError();
+  try{
+    const fondosJson = await fetchJson(FONDOS_URL);
+    STATE.fondos = normalizeFondos(fondosJson);
+    STATE.fondosMeta = { actualizado:fondosJson.actualizado||null, total:fondosJson.total!=null?fondosJson.total:STATE.fondos.length, hoja:fondosJson.hoja||"" };
+
+    /* Intento de hoja Macro; si no, respaldo local. */
+    STATE.macroOk=false; STATE.macro=[]; STATE.macroSource="";
+    for(const url of MACRO_URL_CANDIDATES){
+      try{ const mj=await fetchJson(url); if(mj && mj.hoja && mj.hoja!=="Fondos"){ const m=extractMacro(mj); if(m&&m.length){ STATE.macro=m; STATE.macroOk=true; STATE.macroSource="live"; break; } } }
+      catch(e){}
+    }
+    if(!STATE.macroOk){ STATE.macro=MACRO_FALLBACK; STATE.macroSource="fallback"; }
+
+    STATE.loaded=true;
+    if(!STATE.filters) initFilters();
+    setStatus("ok"); renderMacro(); renderAll();
+  }catch(err){
+    console.error("Error cargando fondos:",err);
+    STATE.loaded=false; setStatus("error");
+    showError("Error de conexión al cargar los datos de fondos. Verifica tu conexión y reintenta.");
+    STATE.macro=MACRO_FALLBACK; STATE.macroSource="fallback"; renderMacro();
+    renderBlockingEmpty();
+  }
+}
+
+function setStatus(mode){
+  const b=document.getElementById("statusBadge");
+  b.className="status-badge "+(mode==="ok"?"ok":mode==="error"?"error":"loading");
+  b.textContent = mode==="ok"?"Datos actualizados":mode==="error"?"Error de conexión":"Cargando";
+  if(mode==="ok"){
+    const fd=STATE.fondos.length?STATE.fondos[0].FechaDato:null;
+    document.getElementById("statusFecha").textContent="Fecha del dato: "+fmtFechaCorta(fd);
+    document.getElementById("statusActualizado").textContent="Actualizado: "+fmtTimestamp(STATE.fondosMeta.actualizado);
+  }
+}
+function showError(m){ document.getElementById("errorMsg").textContent=m; document.getElementById("errorBar").classList.add("show"); }
+function hideError(){ document.getElementById("errorBar").classList.remove("show"); }
+
+/* ============================================================
+   MACRO CARDS
+   ============================================================ */
+function findMacro(names){ for(const n of names){ const h=STATE.macro.find(m=>String(m.indicador).toLowerCase().includes(n)); if(h)return h; } return null; }
+function renderMacro(){
+  const defs=[
+    {key:["uf"],label:"UF",money:true},
+    {key:["dólar observado","dolar observado","dólar","dolar"],label:"Dólar observado",money:true},
+    {key:["euro"],label:"Euro",money:true},
+    {key:["utm"],label:"UTM",money:true},
+    {key:["ipc"],label:"IPC mensual",money:false,pct:true}
+  ];
+  const ref = STATE.macroSource==="fallback";
+  document.getElementById("macroRow").innerHTML = defs.map(d=>{
+    const m=findMacro(d.key); let val=DASH,fecha="";
+    if(m){
+      const raw=m.valor;
+      if(d.pct){ const n=toNum(raw); val=n===null?DASH:(Math.abs(n)<1?nf2.format(n)+"%":nf2.format(n)+"%"); }
+      else { val=d.money?fmtDec(raw):fmtInt(raw); }
+      fecha = m.fechaDato ? ("al "+fmtFechaCorta(m.fechaDato)) : "";
+    }
+    return `<div class="macro-card ${ref?"ref":""}">
+      <div class="m-name">${d.label}</div><div class="m-val num">${val}</div>
+      <div class="m-date">${m?fecha:"No disponible"}${ref&&m?" · referencial":""}</div></div>`;
+  }).join("");
+}
+
+/* ============================================================
+   FILTROS GLOBALES
+   ============================================================ */
+function distinct(field){ const s=new Set(); STATE.fondos.forEach(f=>{if(!isNullish(f[field]))s.add(f[field]);}); return [...s].sort((a,b)=>String(a).localeCompare(String(b),"es")); }
+
+function initFilters(){
+  const clases=distinct("ClaseInversionista"), monedas=distinct("Moneda"), clasifs=distinct("ClasificacionRiesgo");
+  const clasifDefaults=["AAA (construida)","AAA/AA (construida)","AA (construida)"];
+  STATE.filters={
+    agf:new Set(), tipo:new Set(),
+    clase:new Set(clases.includes("Alto Patrimonio")?["Alto Patrimonio"]:clases),
+    moneda:new Set(monedas.includes("CLP")?["CLP"]:monedas),
+    clasif:new Set(clasifs.filter(c=>clasifDefaults.includes(c))),
+    durMin:null, durMax:null, tacMax:1.5, patMin:5000, search:""
+  };
+  renderFilters(distinct("AGF"),clases,monedas,clasifs);
+}
+function renderFilters(agfs,clases,monedas,clasifs){
+  const F=STATE.filters;
+  const chk=(name,val,set)=>`<label class="check-item"><input type="checkbox" data-fgroup="${name}" value="${escAttr(val)}" ${set.has(val)?"checked":""}> <span>${escHtml(val)}</span></label>`;
+  const tipos=["Deuda < 90 dias","Deuda < 365 dias","Deuda > 365 dias"];
+  document.getElementById("filtersBody").innerHTML=`
+    <div class="filter-group"><label class="fg-label">AGF</label><div class="check-list">${agfs.map(a=>chk("agf",a,F.agf)).join("")||'<span style="font-size:12px;color:#999">Sin datos</span>'}</div></div>
+    <div class="filter-group"><label class="fg-label">Tipo</label><div class="check-list">${tipos.map(t=>chk("tipo",t,F.tipo)).join("")}</div></div>
+    <div class="filter-group"><label class="fg-label">Clase de inversionista</label><div class="check-list">${clases.map(c=>chk("clase",c,F.clase)).join("")||'<span style="font-size:12px;color:#999">Sin datos</span>'}</div></div>
+    <div class="filter-group"><label class="fg-label">Moneda</label><div class="check-list">${monedas.map(m=>chk("moneda",m,F.moneda)).join("")||'<span style="font-size:12px;color:#999">Sin datos</span>'}</div></div>
+    <div class="filter-group"><label class="fg-label">Clasificación de riesgo</label><div class="check-list">${clasifs.map(c=>chk("clasif",c,F.clasif)).join("")||'<span style="font-size:12px;color:#999">Sin datos</span>'}</div></div>
+    <div class="filter-group">
+      <label class="fg-label">Duración (días)</label>
+      <div class="range-row"><input type="number" id="fDurMin" placeholder="mín" value="${F.durMin??""}" aria-label="Duración mínima"><span style="color:#999">–</span><input type="number" id="fDurMax" placeholder="máx" value="${F.durMax??""}" aria-label="Duración máxima"></div>
+      <label class="fg-label" style="margin-top:13px;">TAC máximo</label>
+      <div class="input-unit"><input type="number" step="0.1" id="fTacMax" value="${F.tacMax??""}" aria-label="TAC máximo"><span class="unit">%</span></div>
+      <label class="fg-label" style="margin-top:13px;">PatrimonioSerie mínimo</label>
+      <div class="input-unit"><input type="number" id="fPatMin" value="${F.patMin??""}" aria-label="Patrimonio serie mínimo"><span class="unit">MM CLP</span></div>
+      <label class="fg-label" style="margin-top:13px;">Búsqueda libre</label>
+      <input type="text" id="fSearch" placeholder="Fondo, AGF, Serie o RUN" value="${escAttr(F.search)}" aria-label="Búsqueda libre">
+    </div>`;
+  document.querySelectorAll('#filtersBody input[type=checkbox]').forEach(cb=>cb.addEventListener("change",e=>{
+    const g=e.target.dataset.fgroup,v=e.target.value,set=F[g]; if(e.target.checked)set.add(v);else set.delete(v); renderAll();
+  }));
+  const bind=(id,fn)=>{const el=document.getElementById(id);if(el)el.addEventListener("input",fn);};
+  bind("fDurMin",e=>{F.durMin=e.target.value===""?null:toNum(e.target.value);renderAll();});
+  bind("fDurMax",e=>{F.durMax=e.target.value===""?null:toNum(e.target.value);renderAll();});
+  bind("fTacMax",e=>{F.tacMax=e.target.value===""?null:toNum(e.target.value);renderAll();});
+  bind("fPatMin",e=>{F.patMin=e.target.value===""?null:toNum(e.target.value);renderAll();});
+  bind("fSearch",e=>{F.search=e.target.value;renderAll();});
+}
+function tipoMatch(f){
+  const F=STATE.filters; if(!F.tipo.size)return true;
+  const d=toNum(f.DuracionDias),t=String(f.Tipo||"").toLowerCase();
+  for(const sel of F.tipo){
+    if(sel==="Deuda < 90 dias"){ if((d!==null&&d<90)) return true; }
+    else if(sel==="Deuda < 365 dias"){ if((d!==null&&d>=90&&d<365)||t.includes("< 365")) return true; }
+    else if(sel==="Deuda > 365 dias"){ if((d!==null&&d>=365)||t.includes("> 365")) return true; }
+  }
+  return false;
+}
+function applyFilters(list){
+  const F=STATE.filters; if(!F)return list;
+  return list.filter(f=>{
+    if(F.agf.size&&!F.agf.has(f.AGF))return false;
+    if(!tipoMatch(f))return false;
+    if(F.clase.size&&!F.clase.has(f.ClaseInversionista))return false;
+    if(F.moneda.size&&!F.moneda.has(f.Moneda))return false;
+    if(F.clasif.size&&!F.clasif.has(f.ClasificacionRiesgo))return false;
+    const d=toNum(f.DuracionDias);
+    if(F.durMin!==null&&(d===null||d<F.durMin))return false;
+    if(F.durMax!==null&&(d===null||d>F.durMax))return false;
+    if(F.tacMax!==null){const tac=toNum(f.TAC);if(tac!==null&&tac>F.tacMax/100)return false;}
+    if(F.patMin!==null){const p=toNum(f.PatrimonioSerie);if(p===null||p<F.patMin)return false;}
+    if(F.search&&F.search.trim()){const q=F.search.trim().toLowerCase();const hay=[f.Fondo,f.AGF,f.Serie,f.FondoRUN].map(x=>String(x??"").toLowerCase()).join(" ");if(!hay.includes(q))return false;}
+    return true;
+  });
+}
+function getFiltered(){ return applyFilters(STATE.fondos); }
+function resetFilters(){ STATE.filters=null; initFilters(); renderAll(); }
+
+/* ============================================================
+   RENDER GLOBAL
+   ============================================================ */
+function renderAll(){
+  if(!STATE.loaded)return;
+  const filtered=getFiltered();
+  renderDashboard(filtered);
+  renderRecomendables();
+  renderExplorer(filtered);
+  renderTramos();
+  renderMemo();
+}
+function renderBlockingEmpty(){
+  document.getElementById("kpiGrid").innerHTML='<div class="loading-note" style="grid-column:1/-1">No hay datos de fondos disponibles.</div>';
+  document.getElementById("scatterSvg").innerHTML="";
+  document.getElementById("recomBody").innerHTML='<tr><td class="empty-state" colspan="12">No hay datos de fondos disponibles.</td></tr>';
+  document.getElementById("explBody").innerHTML='<tr><td class="empty-state" colspan="20">No hay datos de fondos disponibles.</td></tr>';
+}
+
+/* ============================================================
+   NIVEL DE RIESGO (derivado de clasificación + composición)
+   ============================================================ */
+function riskLevel(f){
+  const c=String(f.ClasificacionRiesgo||"");
+  const bb=toNum(f.Pct_BB_o_menor)||0, sc=toNum(f.Pct_SinClasif)||0, dur=toNum(f.DuracionDias);
+  if(bb>0) return {label:"Riesgo",color:"var(--risk-bad)",rank:5};
+  if(sc>0.10||/mixta|sin clasif/i.test(c)) return {label:"Precaución",color:"var(--risk-warn)",rank:4};
+  if(/^AAA \(/.test(c)) return {label:"Muy alta calidad",color:"var(--risk-top)",rank:1};
+  if(/AAA\/AA/.test(c)) return {label:"Alta calidad",color:"var(--risk-high)",rank:2};
+  if(/^AA \(/.test(c)) return {label:"Calidad media-alta",color:"var(--risk-mid)",rank:3};
+  return {label:"Revisar",color:"var(--risk-warn)",rank:4};
+}
+/* Barra de composición crediticia por fondo */
+function riskBar(f){
+  const segs=[
+    [toNum(f.Pct_AAA_N1)||0,"var(--risk-top)"],
+    [toNum(f.Pct_AA)||0,"var(--risk-high)"],
+    [toNum(f.Pct_A_N2)||0,"var(--risk-mid)"],
+    [toNum(f.Pct_BBB_N3)||0,"var(--risk-warn)"],
+    [toNum(f.Pct_BB_o_menor)||0,"var(--risk-bad)"],
+    [toNum(f.Pct_SinClasif)||0,"var(--fog)"]
+  ];
+  return `<span class="riskbar" title="AAA/N1 ${fmtPct(f.Pct_AAA_N1)} · AA ${fmtPct(f.Pct_AA)} · A/N2 ${fmtPct(f.Pct_A_N2)} · BBB ${fmtPct(f.Pct_BBB_N3)} · BB- ${fmtPct(f.Pct_BB_o_menor)} · s/c ${fmtPct(f.Pct_SinClasif)}">`+
+    segs.map(([v,c])=>v>0?`<span style="width:${(v*100).toFixed(1)}%;background:${c}"></span>`:"").join("")+`</span>`;
+}
+
+/* ============================================================
+   FONDOS RECOMENDABLES
+   ============================================================ */
+function elegiblesTramo(n){
+  const F=STATE.filters;
+  const base=STATE.fondos.filter(f=>{
+    if(F.agf.size&&!F.agf.has(f.AGF))return false;
+    if(F.clase.size&&!F.clase.has(f.ClaseInversionista))return false;
+    if(F.moneda.size&&!F.moneda.has(f.Moneda))return false;
+    if(F.clasif.size&&!F.clasif.has(f.ClasificacionRiesgo))return false;
+    return true;
+  });
+  const hasAP=STATE.fondos.some(f=>f.ClaseInversionista==="Alto Patrimonio");
+  return base.filter(f=>{
+    const d=toNum(f.DuracionDias);
+    if(n===1){ if(!(d!==null&&d<90))return false; if(!CLASIF_CAJA.includes(f.ClasificacionRiesgo))return false; }
+    else{ if(!(d!==null&&d>=90&&d<=365))return false; if(!CLASIF_RESERVA.includes(f.ClasificacionRiesgo))return false; }
+    if(f.Moneda!=="CLP")return false;
+    if(hasAP&&f.ClaseInversionista!=="Alto Patrimonio")return false;
+    if(toNum(f.Pct_BB_o_menor)>0)return false;
+    if(toNum(f.Pct_SinClasif)>0.10)return false;
+    return true;
+  });
+}
+const CLASIF_CAJA=["AAA (construida)","AAA/AA (construida)"];
+const CLASIF_RESERVA=["AAA (construida)","AAA/AA (construida)","AA (construida)"];
+
+/* Une elegibles de ambos tramos, con etiqueta de tramo y rentabilidad neta. */
+function fondosRecomendables(){
+  const seen={}, out=[];
+  [1,2].forEach(n=>elegiblesTramo(n).forEach(f=>{
+    if(seen[f._id]){ if(!seen[f._id].tramos.includes(n))seen[f._id].tramos.push(n); return; }
+    const rent=toNum(f.Rent365d), tac=toNum(f.TAC);
+    const rec={ f, tramos:[n], rent, tac, netaRef:(rent!==null&&tac!==null)?rent-tac:null, risk:riskLevel(f) };
+    seen[f._id]=rec; out.push(rec);
+  }));
+  return out;
+}
+
+const RECOM_COLS=[
+  {k:"tramo",l:"Tramo",sort:r=>r.tramos[0]},
+  {k:"Fondo",l:"Fondo",sort:r=>r.f.Fondo},
+  {k:"AGF",l:"AGF",sort:r=>r.f.AGF},
+  {k:"Serie",l:"Serie",sort:r=>r.f.Serie},
+  {k:"riesgo",l:"Nivel de riesgo",sort:r=>r.risk.rank},
+  {k:"comp",l:"Composición crediticia",right:false,nosort:true},
+  {k:"DuracionDias",l:"Dur.",right:true,sort:r=>toNum(r.f.DuracionDias)},
+  {k:"Rent365d",l:"Rent 365d",right:true,sort:r=>toNum(r.f.Rent365d)},
+  {k:"TAC",l:"TAC",right:true,sort:r=>toNum(r.f.TAC)},
+  {k:"netaRef",l:"Rent neta ref.",right:true,sort:r=>r.netaRef},
+  {k:"N_Emisores",l:"Emis.",right:true,sort:r=>toNum(r.f.N_Emisores)},
+  {k:"PatrimonioSerie",l:"Patrim. serie",right:true,sort:r=>toNum(r.f.PatrimonioSerie)}
+];
+
+function renderRecomendables(){
+  const recs=fondosRecomendables();
+  const s=STATE.recomSort;
+  const col=RECOM_COLS.find(c=>c.k===s.col);
+  if(col&&col.sort){
+    recs.sort((a,b)=>{ let va=col.sort(a),vb=col.sort(b);
+      const na=isNullish(va),nb=isNullish(vb); if(na&&nb)return 0; if(na)return 1; if(nb)return -1;
+      if(typeof va==="number"&&typeof vb==="number")return (va-vb)*s.dir;
+      return String(va).localeCompare(String(vb),"es")*s.dir; });
+  }
+  document.getElementById("recomCount").textContent=`${recs.length} ${recs.length===1?"serie recomendable":"series recomendables"} según reglas y filtros`;
+  document.getElementById("recomHead").innerHTML="<tr>"+RECOM_COLS.map(c=>{
+    const isS=s.col===c.k, ind=isS?`<span class="sort-ind">${s.dir>0?"▲":"▼"}</span>`:"";
+    return `<th class="${c.right?"right":""} ${c.nosort?"no-sort":""}" data-col="${c.k}">${escHtml(c.l)}${c.nosort?"":ind}</th>`;
+  }).join("")+"</tr>";
+  document.querySelectorAll("#recomHead th").forEach(th=>{ if(th.classList.contains("no-sort"))return;
+    th.addEventListener("click",()=>{ const k=th.dataset.col; if(s.col===k)s.dir*=-1; else{s.col=k;s.dir=1;} renderRecomendables(); });
+  });
+  const body=document.getElementById("recomBody");
+  if(!recs.length){ body.innerHTML=`<tr><td class="empty-state" colspan="${RECOM_COLS.length}">No hay fondos recomendables con las reglas y filtros actuales. Ajusta los filtros globales en el Explorador.</td></tr>`; }
+  else{
+    body.innerHTML=recs.map(r=>{
+      const f=r.f;
+      const tag=r.tramos.map(t=>`<span class="tramo-tag t${t}">${t===1?"Caja":"Reserva"}</span>`).join(" ");
+      return `<tr>
+        <td>${tag}</td>
+        <td class="trunc" title="${escAttr(f.Fondo||"")}">${escHtml(f.Fondo||"")}</td>
+        <td>${escHtml(f.AGF||"")}</td>
+        <td>${escHtml(String(f.Serie||""))}</td>
+        <td><span class="risk-badge" style="background:${r.risk.color}">${r.risk.label}</span></td>
+        <td>${riskBar(f)}</td>
+        <td class="right num">${fmtNum(f.DuracionDias)}</td>
+        <td class="right num">${fmtPct(f.Rent365d)}</td>
+        <td class="right num">${fmtPct(f.TAC)}</td>
+        <td class="right num" style="font-weight:600">${fmtPct(r.netaRef)}</td>
+        <td class="right num">${fmtNum(f.N_Emisores)}</td>
+        <td class="right num">${fmtPatrimonio(f.PatrimonioSerie,f.Moneda)}</td>
+      </tr>`;
+    }).join("");
+  }
+  document.getElementById("riskLegend").innerHTML=[
+    ["Muy alta calidad (AAA)","var(--risk-top)"],["Alta calidad (AAA/AA)","var(--risk-high)"],
+    ["Media-alta (AA)","var(--risk-mid)"],["Precaución","var(--risk-warn)"],["Riesgo (BB o menor)","var(--risk-bad)"]
+  ].map(([l,c])=>`<span class="li"><span class="dot" style="background:${c}"></span>${l}</span>`).join("");
+}
+
+/* ============================================================
+   TAB 1 — DASHBOARD (KPIs + gráficas)
+   ============================================================ */
+function renderDashboard(filtered){
+  const rent=filtered.map(f=>toNum(f.Rent365d)), tac=filtered.map(f=>toNum(f.TAC)), dur=filtered.map(f=>toNum(f.DuracionDias));
+  const patSum=filtered.reduce((a,f)=>a+(toNum(f.PatrimonioSerie)||0),0);
+  const aaa=filtered.map(f=>toNum(f.Pct_AAA_N1)), emis=filtered.map(f=>toNum(f.N_Emisores));
+  const kpis=[
+    {l:"Total de fondos cargados",v:fmtInt(STATE.fondos.length)},
+    {l:"Fondos que pasan filtros",v:fmtInt(filtered.length)},
+    {l:"Rent. 365d mediana",v:fmtPct(median(rent))},
+    {l:"TAC mediana",v:fmtPct(median(tac))},
+    {l:"Duración mediana",v:median(dur)===null?DASH:fmtInt(median(dur))+" días"},
+    {l:"Patrimonio serie total",v:"$"+nfInt.format(Math.round(patSum))+" MM"},
+    {l:"% AAA/N1 promedio",v:fmtPct(mean(aaa))},
+    {l:"N° emisores promedio",v:mean(emis)===null?DASH:nfInt.format(Math.round(mean(emis)))}
+  ];
+  document.getElementById("kpiGrid").innerHTML=kpis.map(k=>`<div class="kpi"><div class="k-label">${k.l}</div><div class="k-val num">${k.v}</div></div>`).join("");
+  drawScatter(filtered); drawTramoDist(filtered); drawCreditQuality(filtered); drawAlerts(filtered);
+}
+
+const CLASIF_PALETTE=["#20304A","#3A4E6B","#6B7688","#9C5A64","#7C2E3C","#45566E","#AAB2BD","#8B94A0"];
+function clasifColors(filtered){ const vals=[...new Set(filtered.map(f=>f.ClasificacionRiesgo||"Sin clasif").filter(Boolean))]; const map={}; vals.forEach((v,i)=>map[v]=CLASIF_PALETTE[i%CLASIF_PALETTE.length]); return map; }
+function drawScatter(filtered){
+  const svg=document.getElementById("scatterSvg");
+  const pts=filtered.filter(f=>toNum(f.DuracionDias)!==null&&toNum(f.Rent365d)!==null);
+  const W=Math.max(svg.clientWidth||900,640),H=420, pad={l:66,r:24,t:16,b:46}, iw=W-pad.l-pad.r, ih=H-pad.t-pad.b;
+  if(!pts.length){ svg.setAttribute("viewBox",`0 0 ${W} ${H}`); svg.innerHTML=`<text x="${W/2}" y="${H/2}" text-anchor="middle" fill="#8B94A0" font-size="15" font-family="Georgia,serif" font-style="italic">No hay fondos que cumplan los filtros seleccionados.</text>`; document.getElementById("scatterLegend").innerHTML=""; return; }
+  const xMax=Math.max(500,...pts.map(p=>toNum(p.DuracionDias)))*1.05;
+  const yMin=Math.min(0,...pts.map(p=>toNum(p.Rent365d)));
+  const yMax=Math.max(0.001,...pts.map(p=>toNum(p.Rent365d)))*1.1;
+  const patMax=Math.max(1,...pts.map(p=>toNum(p.PatrimonioSerie)||0));
+  const colors=clasifColors(filtered);
+  const sx=d=>pad.l+(d/xMax)*iw, sy=v=>pad.t+ih-((v-yMin)/(yMax-yMin))*ih, sr=p=>{const n=toNum(p)||0;return 3+Math.sqrt(n/patMax)*11;};
+  let g="";
+  const yticks=5; for(let i=0;i<=yticks;i++){ const v=yMin+(yMax-yMin)*i/yticks,y=sy(v);
+    g+=`<line x1="${pad.l}" y1="${y}" x2="${W-pad.r}" y2="${y}" stroke="#E3E6EA" stroke-width="1"/><text x="${pad.l-8}" y="${y+3}" text-anchor="end" fill="#8B94A0" font-size="10" font-family="Roboto,sans-serif">${nf2.format(v*100)}%</text>`; }
+  const xticks=6; for(let i=0;i<=xticks;i++){ const d=xMax*i/xticks,x=sx(d);
+    g+=`<text x="${x}" y="${H-pad.b+16}" text-anchor="middle" fill="#8B94A0" font-size="10" font-family="Roboto,sans-serif">${nfInt.format(Math.round(d))}</text>`; }
+  g+=`<line x1="${pad.l}" y1="${pad.t}" x2="${pad.l}" y2="${pad.t+ih}" stroke="#AAB2BD" stroke-width="1"/><line x1="${pad.l}" y1="${sy(0)}" x2="${W-pad.r}" y2="${sy(0)}" stroke="#AAB2BD" stroke-width="1"/>`;
+  [[90,"90 días"],[365,"365 días"]].forEach(([d,lbl])=>{ if(d<=xMax){const x=sx(d);
+    g+=`<line x1="${x}" y1="${pad.t}" x2="${x}" y2="${pad.t+ih}" stroke="#7C2E3C" stroke-width="1" stroke-dasharray="4 3" opacity=".55"/><text x="${x+4}" y="${pad.t+12}" fill="#7C2E3C" font-size="9.5" font-family="Roboto,sans-serif">${lbl}</text>`; }});
+  g+=`<text x="${pad.l+iw/2}" y="${H-4}" text-anchor="middle" fill="#59636F" font-size="11" font-family="Roboto,sans-serif">Duración (días)</text><text transform="translate(15,${pad.t+ih/2}) rotate(-90)" text-anchor="middle" fill="#59636F" font-size="11" font-family="Roboto,sans-serif">Rent. 365d</text>`;
+  pts.forEach(p=>{ const cx=sx(toNum(p.DuracionDias)),cy=sy(toNum(p.Rent365d)),r=sr(p.PatrimonioSerie),c=colors[p.ClasificacionRiesgo||"Sin clasif"]||"#59636F";
+    g+=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="${c}" fill-opacity=".5" stroke="${c}" stroke-width="1" data-id="${p._id}" class="sc-pt" style="cursor:pointer"/>`; });
+  svg.setAttribute("viewBox",`0 0 ${W} ${H}`); svg.innerHTML=g;
+  const tip=document.getElementById("scatterTooltip");
+  svg.querySelectorAll(".sc-pt").forEach(el=>{
+    el.addEventListener("mousemove",e=>{ const f=STATE.fondos.find(x=>x._id===el.dataset.id); if(!f)return;
+      tip.innerHTML=`<b>${escHtml(f.Fondo||"")}</b><br>${escHtml(f.AGF||"")} · Serie ${escHtml(String(f.Serie||""))}<br>Duración: ${fmtNum(f.DuracionDias)} días<br>Rent365d: ${fmtPct(f.Rent365d)}<br>TAC: ${fmtPct(f.TAC)}<br>${escHtml(f.ClasificacionRiesgo||"—")}<br>Patrimonio serie: ${fmtPatrimonio(f.PatrimonioSerie,f.Moneda)}`;
+      tip.style.display="block"; tip.style.left=Math.min(e.clientX+14,window.innerWidth-280)+"px"; tip.style.top=(e.clientY+14)+"px"; });
+    el.addEventListener("mouseleave",()=>{tip.style.display="none";});
+  });
+  document.getElementById("scatterLegend").innerHTML=Object.entries(colors).map(([k,c])=>`<span class="li"><span class="dot" style="background:${c}"></span>${escHtml(k)}</span>`).join("")+`<span class="li" style="color:#8B94A0">Tamaño ∝ Patrimonio serie</span>`;
+}
+function drawTramoDist(filtered){
+  const b1=filtered.filter(f=>{const d=toNum(f.DuracionDias);return d!==null&&d<90;}).length;
+  const b2=filtered.filter(f=>{const d=toNum(f.DuracionDias);return d!==null&&d>=90&&d<=365;}).length;
+  const b3=filtered.filter(f=>{const d=toNum(f.DuracionDias);return d!==null&&d>365;}).length;
+  const total=b1+b2+b3, el=document.getElementById("tramoDist");
+  if(!total){el.innerHTML=emptyMini();return;}
+  const segs=[{n:"< 90 días (caja operativa)",v:b1,c:"#20304A"},{n:"90–365 días (reserva mediano plazo)",v:b2,c:"#45566E"},{n:"> 365 días (mayor duración)",v:b3,c:"#7C2E3C"}];
+  el.innerHTML=`<div class="stacked">`+segs.map(s=>`<div class="seg" style="width:${(s.v/total*100).toFixed(2)}%;background:${s.c}" title="${s.n}: ${s.v}">${s.v?s.v:""}</div>`).join("")+`</div><div class="stacked-legend">`+segs.map(s=>`<span class="li"><span class="sq" style="background:${s.c}"></span>${s.n} — <strong>${s.v}</strong></span>`).join("")+`</div>`;
+}
+function drawCreditQuality(filtered){
+  const fields=[["Pct_AAA_N1","AAA / N1","var(--risk-top)"],["Pct_AA","AA","var(--risk-high)"],["Pct_A_N2","A / N2","var(--risk-mid)"],["Pct_BBB_N3","BBB / N3","var(--risk-warn)"],["Pct_BB_o_menor","BB o menor","var(--risk-bad)"],["Pct_SinClasif","Sin clasificación","var(--fog)"]];
+  const el=document.getElementById("creditQuality");
+  if(!filtered.length){el.innerHTML=emptyMini();return;}
+  const maxAvg=Math.max(0.0001,...fields.map(([f])=>mean(filtered.map(r=>toNum(r[f])))||0));
+  el.innerHTML=fields.map(([f,lbl,c])=>{ const avg=mean(filtered.map(r=>toNum(r[f]))); const w=avg===null?0:(avg/maxAvg*100);
+    return `<div class="hbar-row"><span class="hbar-label">${lbl}</span><span class="hbar-track"><span class="hbar-fill" style="width:${w.toFixed(2)}%;background:${c}"></span></span><span class="hbar-val num">${fmtPct(avg)}</span></div>`;
+  }).join("");
+}
+function drawAlerts(filtered){
+  const el=document.getElementById("alertsPanel");
+  const checks=[
+    {test:f=>toNum(f.Pct_BB_o_menor)>0,msg:"tienen exposición a instrumentos BB o menor."},
+    {test:f=>toNum(f.Pct_SinClasif)>0.10,msg:"tienen más de 10% sin clasificación."},
+    {test:f=>toNum(f.DuracionDias)>365,msg:"tienen duración superior a 365 días."},
+    {test:f=>toNum(f.TAC)>0.015,msg:"tienen TAC superior a 1,50%."},
+    {test:f=>{const n=toNum(f.N_Emisores);return n!==null&&n<5;},msg:"tienen menos de 5 emisores (baja diversificación)."}
+  ];
+  if(!filtered.length){el.innerHTML=emptyMini();return;}
+  const items=checks.map(c=>{const n=filtered.filter(c.test).length;return n?{n,msg:c.msg}:null;}).filter(Boolean);
+  if(!items.length){el.innerHTML='<div class="alert-ok">Sin observaciones. Ningún fondo del universo filtrado activa criterios de atención.</div>';return;}
+  el.innerHTML=items.map(i=>`<div class="alert"><span class="a-mark">!</span><span><strong>${i.n}</strong> ${i.n===1?"fondo del universo filtrado":"fondos del universo filtrado"} ${i.msg}</span></div>`).join("")+'<div style="font-size:11.5px;color:#8B94A0;margin-top:9px;font-family:var(--font-serif);font-style:italic">Estas observaciones son informativas y buscan orientar la revisión, no descartar automáticamente ningún fondo.</div>';
+}
+function emptyMini(){ return '<div class="empty-state">No hay fondos que cumplan los filtros seleccionados.</div>'; }
+
+/* ============================================================
+   TAB 2 — EXPLORADOR
+   ============================================================ */
+const BASE_COLS=[
+  {k:"Fondo",l:"Fondo",type:"str",trunc:true},{k:"AGF",l:"AGF",type:"str"},{k:"Serie",l:"Serie",type:"str"},
+  {k:"Moneda",l:"Moneda",type:"str"},{k:"Tipo",l:"Tipo",type:"str"},
+  {k:"DuracionDias",l:"Duración (d)",type:"num",right:true,fmt:fmtNum},
+  {k:"TAC",l:"TAC",type:"num",right:true,fmt:fmtPct},{k:"Rent365d",l:"Rent 365d",type:"num",right:true,fmt:fmtPct},
+  {k:"PatrimonioSerie",l:"Patrim. serie",type:"num",right:true,fmt:(v,r)=>fmtPatrimonio(v,r.Moneda)},
+  {k:"ClasificacionRiesgo",l:"Clasif. riesgo",type:"str"},{k:"PerfilRiesgoPortafolio",l:"Perfil riesgo portafolio",type:"str",trunc:true}
+];
+const EXTRA_COLS=[
+  {k:"Rent30d",l:"Rent 30d",type:"num",right:true,fmt:fmtPct},{k:"Rent90d",l:"Rent 90d",type:"num",right:true,fmt:fmtPct},
+  {k:"PatrimonioFondo",l:"Patrim. fondo",type:"num",right:true,fmt:(v,r)=>fmtPatrimonio(v,r.Moneda)},
+  {k:"N_Instrumentos",l:"N° instrum.",type:"num",right:true,fmt:fmtNum},{k:"N_Emisores",l:"N° emisores",type:"num",right:true,fmt:fmtNum},
+  {k:"N_Paises",l:"N° países",type:"num",right:true,fmt:fmtNum},{k:"ComisionRescate",l:"Com. rescate",type:"num",right:true,fmt:fmtPct},
+  {k:"MontoMinimo",l:"Monto mínimo",type:"num",right:true,fmt:fmtInt},
+  {k:"Pct_AAA_N1",l:"% AAA/N1",type:"num",right:true,fmt:fmtPct},{k:"Pct_AA",l:"% AA",type:"num",right:true,fmt:fmtPct},
+  {k:"Pct_A_N2",l:"% A/N2",type:"num",right:true,fmt:fmtPct},{k:"Pct_BBB_N3",l:"% BBB/N3",type:"num",right:true,fmt:fmtPct},
+  {k:"Pct_BB_o_menor",l:"% BB o menor",type:"num",right:true,fmt:fmtPct},{k:"Pct_SinClasif",l:"% Sin clasif",type:"num",right:true,fmt:fmtPct},
+  {k:"FondoRUN",l:"RUN",type:"num",right:true,fmt:fmtNum},{k:"FechaDato",l:"Fecha dato",type:"date",fmt:fmtFechaCorta},{k:"ClaseInversionista",l:"Clase inversionista",type:"str"}
+];
+function activeCols(){ return STATE.showMoreCols?BASE_COLS.concat(EXTRA_COLS):BASE_COLS; }
+function sortData(rows){
+  const s=STATE.sort; if(!s.col)return rows;
+  const col=activeCols().find(c=>c.k===s.col); if(!col)return rows;
+  const copy=rows.slice();
+  copy.sort((a,b)=>{ let va=a[s.col],vb=b[s.col]; const na=isNullish(va),nb=isNullish(vb);
+    if(na&&nb)return 0; if(na)return 1; if(nb)return -1;
+    if(col.type==="num"){va=toNum(va);vb=toNum(vb);return (va-vb)*s.dir;}
+    if(col.type==="date")return (new Date(va)-new Date(vb))*s.dir;
+    return String(va).localeCompare(String(vb),"es")*s.dir; });
+  return copy;
+}
+function renderExplorer(filtered){
+  const cols=activeCols(), rows=sortData(filtered);
+  document.getElementById("btnMoreCols").textContent=STATE.showMoreCols?"Ocultar columnas adicionales":"Ver más columnas";
+  document.getElementById("explHead").innerHTML="<tr>"+cols.map(c=>{const isS=STATE.sort.col===c.k;const ind=isS?`<span class="sort-ind">${STATE.sort.dir>0?"▲":"▼"}</span>`:"";return `<th class="${c.right?"right":""}" data-col="${c.k}" title="${escAttr(c.l)}">${escHtml(c.l)}${ind}</th>`;}).join("")+"</tr>";
+  document.querySelectorAll("#explHead th").forEach(th=>th.addEventListener("click",()=>{const k=th.dataset.col;if(STATE.sort.col===k)STATE.sort.dir*=-1;else{STATE.sort.col=k;STATE.sort.dir=1;}renderExplorer(getFiltered());}));
+  const body=document.getElementById("explBody");
+  if(!rows.length){ body.innerHTML=`<tr><td class="empty-state" colspan="${cols.length}">No hay fondos que cumplan los filtros seleccionados.</td></tr>`; }
+  else{ body.innerHTML=rows.map(r=>"<tr>"+cols.map(c=>{const raw=r[c.k];const val=c.fmt?c.fmt(raw,r):(isNullish(raw)?DASH:escHtml(String(raw)));const cls=(c.right?"right ":"")+(c.trunc?"trunc":"");const title=c.trunc&&!isNullish(raw)?` title="${escAttr(String(raw))}"`:"";return `<td class="${cls}"${title}>${val}</td>`;}).join("")+"</tr>").join(""); }
+  document.getElementById("explCount").textContent=`Mostrando ${nfInt.format(filtered.length)} de ${nfInt.format(STATE.fondos.length)} series según filtros`;
+}
+function exportCsv(){
+  const cols=activeCols(), rows=sortData(getFiltered());
+  const esc=v=>{let s=isNullish(v)?"":String(v);if(/[;"\n]/.test(s))s='"'+s.replace(/"/g,'""')+'"';return s;};
+  let out=cols.map(c=>esc(c.l)).join(";")+"\r\n"; rows.forEach(r=>{out+=cols.map(c=>esc(r[c.k])).join(";")+"\r\n";});
+  const blob=new Blob(["\ufeff"+out],{type:"text/csv;charset=utf-8;"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="wildlama_fondos_filtrados.csv";
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),500);
+}
+
+/* ============================================================
+   TAB — INVERSIONES ACTUALES (libro de movimientos + intereses)
+   Modelo: cada movimiento es una inversión (aporte) o un retiro,
+   con banco/AGF, fondo, serie, monto y fecha. El interés ganado se
+   estima de forma referencial con la Rent365d histórica del fondo
+   prorrateada por los días transcurridos hasta hoy.
+   ============================================================ */
+const HOLD_COLS=["Tipo","Banco / AGF","Fondo","Serie","Monto (CLP)","Fecha","Nivel de riesgo","Rent365d",""];
+
+function agfList(){ return distinct("AGF"); }
+function fondosDeAgf(agf){ return [...new Set(STATE.fondos.filter(f=>f.AGF===agf).map(f=>f.Fondo))].sort((a,b)=>String(a).localeCompare(String(b),"es")); }
+function seriesDeFondo(agf,fondo){ return [...new Set(STATE.fondos.filter(f=>f.AGF===agf&&f.Fondo===fondo).map(f=>f.Serie))].sort((a,b)=>String(a).localeCompare(String(b),"es")); }
+function matchFondo(h){ return STATE.fondos.find(f=>f.AGF===h.agf&&f.Fondo===h.fondo&&String(f.Serie)===String(h.serie))||null; }
+
+/* Días transcurridos desde una fecha (YYYY-MM-DD) hasta hoy (>=0). */
+function diasHastaHoy(fechaStr){
+  if(!fechaStr)return 0;
+  const m=String(fechaStr).match(/^(\d{4})-(\d{2})-(\d{2})/); if(!m)return 0;
+  const f=new Date(+m[1],+m[2]-1,+m[3]); const hoy=new Date();
+  const d=Math.floor((hoy-f)/86400000); return d>0?d:0;
+}
+function hoyISO(){ const d=new Date(),p=n=>String(n).padStart(2,"0"); return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate()); }
+
+function addMov(tipo){ STATE.holdings.push({id:++STATE.holdSeq,tipo:tipo,agf:"",fondo:"",serie:"",monto:0,fecha:hoyISO()}); renderInversiones(); }
+function removeHolding(id){ STATE.holdings=STATE.holdings.filter(h=>h.id!==id); renderInversiones(); }
+function clearHoldings(){ STATE.holdings=[]; renderInversiones(); }
+
+function renderInversiones(){
+  const head=document.getElementById("holdHead"), body=document.getElementById("holdBody");
+  if(!head)return;
+  head.innerHTML="<tr>"+HOLD_COLS.map((h,i)=>`<th class="${i===4||i===7?'right':''} no-sort">${h}</th>`).join("")+"</tr>";
+  if(!STATE.loaded){ body.innerHTML=`<tr><td class="empty-state" colspan="${HOLD_COLS.length}">Los datos de fondos aún no están disponibles.</td></tr>`; return; }
+  if(!STATE.holdings.length){ body.innerHTML=`<tr><td class="empty-state" colspan="${HOLD_COLS.length}">Aún no hay movimientos. Usa "Agregar inversión" o "Agregar retiro" para empezar.</td></tr>`; renderByFund(); renderHoldSummary(); return; }
+
+  const opt=(v,sel)=>`<option value="${escAttr(v)}" ${String(sel)===String(v)?"selected":""}>${escHtml(v)}</option>`;
+  body.innerHTML=STATE.holdings.map(h=>{
+    const f=matchFondo(h), rk=f?riskLevel(f):null;
+    const agfOpts=`<option value="">— Banco / AGF —</option>`+agfList().map(a=>opt(a,h.agf)).join("");
+    const fondoOpts=h.agf?(`<option value="">— Fondo —</option>`+fondosDeAgf(h.agf).map(x=>opt(x,h.fondo)).join("")):`<option value="">Elige banco primero</option>`;
+    const serieOpts=(h.agf&&h.fondo)?(`<option value="">— Serie —</option>`+seriesDeFondo(h.agf,h.fondo).map(x=>opt(x,h.serie)).join("")):`<option value="">Elige fondo primero</option>`;
+    const tipoOpts=opt("inversion",h.tipo).replace(">inversion<",">Inversión<")+opt("retiro",h.tipo).replace(">retiro<",">Retiro<");
+    const tipoTag=h.tipo==="retiro"?`<span class="tramo-tag" style="background:var(--burgundy);color:var(--cream);border-color:var(--burgundy)">Retiro</span>`:`<span class="tramo-tag t1">Inversión</span>`;
+    return `<tr data-id="${h.id}">
+      <td><select class="h-tipo" style="min-width:110px" aria-label="Tipo de movimiento"><option value="inversion" ${h.tipo!=="retiro"?"selected":""}>Inversión</option><option value="retiro" ${h.tipo==="retiro"?"selected":""}>Retiro</option></select></td>
+      <td><select class="h-agf" style="min-width:150px" aria-label="Banco o AGF">${agfOpts}</select></td>
+      <td class="trunc" style="max-width:300px"><select class="h-fondo" style="min-width:220px;max-width:340px" aria-label="Fondo">${fondoOpts}</select></td>
+      <td><select class="h-serie" style="min-width:80px" aria-label="Serie">${serieOpts}</select></td>
+      <td class="right"><input type="text" inputmode="numeric" class="h-monto num" style="width:130px;text-align:right" placeholder="$0" value="${h.monto?nfInt.format(h.monto):""}" aria-label="Monto"></td>
+      <td><input type="date" class="h-fecha" style="width:150px" value="${h.fecha||""}" aria-label="Fecha del movimiento"></td>
+      <td>${rk?`<span class="risk-badge" style="background:${rk.color}">${rk.label}</span>`:DASH}</td>
+      <td class="right num">${f?fmtPct(f.Rent365d):DASH}</td>
+      <td><button class="btn ghost sm h-del" type="button" aria-label="Eliminar">Quitar</button></td>
+    </tr>`;
+  }).join("");
+
+  body.querySelectorAll("tr[data-id]").forEach(tr=>{
+    const id=+tr.dataset.id, h=STATE.holdings.find(x=>x.id===id);
+    tr.querySelector(".h-tipo").addEventListener("change",e=>{ h.tipo=e.target.value; renderByFund(); renderHoldSummary(); });
+    tr.querySelector(".h-agf").addEventListener("change",e=>{ h.agf=e.target.value; h.fondo=""; h.serie=""; renderInversiones(); });
+    tr.querySelector(".h-fondo").addEventListener("change",e=>{ h.fondo=e.target.value; h.serie=""; renderInversiones(); });
+    tr.querySelector(".h-serie").addEventListener("change",e=>{ h.serie=e.target.value; renderInversiones(); });
+    const monto=tr.querySelector(".h-monto");
+    monto.addEventListener("input",e=>{ h.monto=parseMiles(e.target.value); e.target.value=h.monto?nfInt.format(h.monto):""; renderByFund(); renderHoldSummary(); });
+    tr.querySelector(".h-fecha").addEventListener("change",e=>{ h.fecha=e.target.value; renderByFund(); renderHoldSummary(); });
+    tr.querySelector(".h-del").addEventListener("click",()=>removeHolding(id));
+  });
+  renderByFund(); renderHoldSummary();
+}
+
+/* Agrupa los movimientos por fondo (agf|fondo|serie) y calcula
+   capital neto e interés referencial acumulado. */
+function agruparPorFondo(){
+  const groups={};
+  STATE.holdings.forEach(h=>{
+    const f=matchFondo(h); if(!f||!h.monto)return;
+    const key=h.agf+"|"+h.fondo+"|"+h.serie;
+    if(!groups[key]) groups[key]={f,agf:h.agf,fondo:h.fondo,serie:h.serie,aportes:0,retiros:0,interes:0,pesoDias:0,pesoMonto:0};
+    const g=groups[key];
+    const signo=h.tipo==="retiro"?-1:1;
+    const rent=toNum(f.Rent365d)||0, dias=diasHastaHoy(h.fecha);
+    if(signo>0) g.aportes+=h.monto; else g.retiros+=h.monto;
+    // Interés lineal: cada movimiento aporta/retira interés desde su fecha hasta hoy
+    g.interes += signo*h.monto*(rent/365)*dias;
+    g.pesoDias += h.monto*dias; g.pesoMonto += h.monto;
+  });
+  return Object.values(groups).map(g=>{
+    g.capitalNeto=g.aportes-g.retiros;
+    g.rent=toNum(g.f.Rent365d);
+    g.diasProm=g.pesoMonto>0?g.pesoDias/g.pesoMonto:0;
+    g.rentEfect = g.capitalNeto>0 ? (g.interes/g.capitalNeto) : (g.aportes>0?g.interes/g.aportes:null);
+    return g;
+  });
+}
+
+const BYFUND_COLS=["Fondo","AGF","Serie","Aportes","Retiros","Capital neto","Rent365d","Días prom.","Interés ganado ref.","Rentab. efectiva %"];
+function renderByFund(){
+  const head=document.getElementById("byFundHead"), body=document.getElementById("byFundBody"); if(!head)return;
+  head.innerHTML="<tr>"+BYFUND_COLS.map((h,i)=>`<th class="${i>=3?'right':''} no-sort">${h}</th>`).join("")+"</tr>";
+  const groups=agruparPorFondo();
+  if(!groups.length){ body.innerHTML=`<tr><td class="empty-state" colspan="${BYFUND_COLS.length}">Sin movimientos con fondo y monto válidos.</td></tr>`; return; }
+  groups.sort((a,b)=>b.capitalNeto-a.capitalNeto);
+  body.innerHTML=groups.map(g=>`<tr>
+    <td class="trunc" title="${escAttr(g.fondo)}">${escHtml(g.fondo)}</td>
+    <td>${escHtml(g.agf)}</td><td>${escHtml(String(g.serie))}</td>
+    <td class="right num">${fmtCLP(g.aportes)}</td>
+    <td class="right num">${g.retiros?fmtCLP(g.retiros):DASH}</td>
+    <td class="right num" style="font-weight:600">${fmtCLP(g.capitalNeto)}</td>
+    <td class="right num">${fmtPct(g.rent)}</td>
+    <td class="right num">${fmtInt(g.diasProm)}</td>
+    <td class="right num" style="font-weight:600">${fmtCLP(g.interes)}</td>
+    <td class="right num">${g.rentEfect===null?DASH:nf2.format(g.rentEfect*100)+"%"}</td>
+  </tr>`).join("");
+}
+
+function renderHoldSummary(){
+  const el=document.getElementById("holdSummary"); if(!el)return;
+  const groups=agruparPorFondo();
+  const totalAportes=groups.reduce((a,g)=>a+g.aportes,0);
+  const totalRetiros=groups.reduce((a,g)=>a+g.retiros,0);
+  const capitalNeto=groups.reduce((a,g)=>a+g.capitalNeto,0);
+  const interesTotal=groups.reduce((a,g)=>a+g.interes,0);
+  // Rent365d ponderada por capital neto vigente
+  const rentW=weightedAvg(groups.map(g=>[g.rent,Math.max(0,g.capitalNeto)]));
+  const tacW=weightedAvg(groups.map(g=>[toNum(g.f.TAC),Math.max(0,g.capitalNeto)]));
+  const durW=weightedAvg(groups.map(g=>[toNum(g.f.DuracionDias),Math.max(0,g.capitalNeto)]));
+  // Rentabilidad total efectiva referencial (interés / capital neto)
+  const rentEfectTotal = capitalNeto>0 ? interesTotal/capitalNeto : (totalAportes>0?interesTotal/totalAportes:null);
+
+  const cells=[
+    {l:"Total invertido (aportes)",v:fmtCLP(totalAportes)},
+    {l:"Total retirado",v:fmtCLP(totalRetiros)},
+    {l:"Capital neto vigente",v:fmtCLP(capitalNeto)},
+    {l:"N° de fondos",v:fmtInt(groups.length)},
+    {l:"Interés ganado total ref.",v:fmtCLP(interesTotal)},
+    {l:"Rentab. total efectiva ref.",v:rentEfectTotal===null?DASH:nf2.format(rentEfectTotal*100)+"%"},
+    {l:"Rent365d ponderada",v:fmtPct(rentW)},
+    {l:"TAC ponderada",v:fmtPct(tacW)},
+    {l:"Duración ponderada",v:durW===null?DASH:fmtInt(durW)+" días"}
+  ];
+  // Distribución por banco (por capital neto)
+  const porAgf={}; groups.forEach(g=>{ if(g.capitalNeto>0)porAgf[g.agf]=(porAgf[g.agf]||0)+g.capitalNeto; });
+  let bar="";
+  if(capitalNeto>0){
+    const entries=Object.entries(porAgf).sort((a,b)=>b[1]-a[1]); const pal=CLASIF_PALETTE;
+    bar=`<div class="stacked" style="margin-bottom:14px">`+entries.map(([a,v],i)=>`<div class="seg" style="width:${(v/capitalNeto*100).toFixed(2)}%;background:${pal[i%pal.length]}" title="${escAttr(a)}: ${fmtCLP(v)}">${(v/capitalNeto*100)>=9?escHtml(a):""}</div>`).join("")+`</div><div class="stacked-legend" style="margin-bottom:16px">`+entries.map(([a,v],i)=>`<span class="li"><span class="sq" style="background:${pal[i%pal.length]}"></span>${escHtml(a)} — <strong>${fmtCLP(v)}</strong></span>`).join("")+`</div>`;
+  }
+  el.innerHTML=(capitalNeto>0?bar:'<p style="font-family:var(--font-serif);font-style:italic;color:var(--ink-muted);margin:0 0 14px">Ingresa movimientos con fondo, monto y fecha para ver los resultados.</p>')+`<div class="summary-grid">`+cells.map(c=>`<div class="summary-cell"><div class="s-label">${c.l}</div><div class="s-val num">${c.v}</div></div>`).join("")+`</div><p style="font-size:11.5px;color:var(--ink-subtle);margin-top:12px;font-family:var(--font-serif);font-style:italic">Interés y rentabilidad son estimaciones referenciales basadas en la Rent365d histórica prorrateada por días; no reflejan el valor cuota efectivo ni descuentan comisiones de rescate.</p>`;
+}
+
+/* ============================================================
+   TAB 3 — ASIGNACIÓN POR TRAMOS
+   ============================================================ */
+const TRAMO_META={
+  1:{title:"Tramo 1 — Caja Operativa",cls:"",desc:"Excedentes de corto plazo que deben priorizar liquidez, baja duración y alta calidad crediticia. Pensado para fondos que podrían respaldar necesidades operacionales próximas."},
+  2:{title:"Tramo 2 — Reserva Mediano Plazo",cls:"t2",desc:"Recursos con horizonte medio, donde se acepta algo más de duración a cambio de potencial mayor rentabilidad, manteniendo foco en calidad crediticia."}
+};
+function renderTramos(){
+  const wrap=document.getElementById("tramosWrap");
+  wrap.innerHTML=capitalStripHtml()+tramoCardHtml(1)+tramoCardHtml(2)+
+    `<div class="section"><div class="section-head"><div><span class="eyebrow sec-eyebrow">Propuesta</span><h2>Resumen consolidado</h2></div></div><div class="section-body" id="consolidado"></div></div>
+     <div class="disclaimer">La rentabilidad esperada es referencial y está basada en Rent365d histórica. No es proyección, promesa ni garantía. Las tasas actuales, condiciones de mercado, costos y liquidez efectiva pueden diferir significativamente. Toda asignación debe ser validada por el responsable financiero.</div>`;
+  // Capital compartido (strip en tramos)
+  const capIn=document.getElementById("capitalInput2");
+  if(capIn){ capIn.addEventListener("input",e=>{ setCapital(parseMiles(e.target.value)); e.target.value=STATE.capital?nfInt.format(STATE.capital):""; }); }
+  [1,2].forEach(n=>{
+    buildTramoTable(n);
+    const box=document.getElementById("tramo-"+n);
+    box.querySelector(".t-amount").addEventListener("input",e=>{ STATE.tramos[n].monto=parseMiles(e.target.value); e.target.value=STATE.tramos[n].monto?nfInt.format(STATE.tramos[n].monto):""; updateTramoSummary(n); updateConsolidado(); updateCapitalHints(); renderMemo(); });
+    box.querySelector(".btn-distribuir").addEventListener("click",()=>distribuirIgual(n));
+    box.querySelector(".btn-limpiar").addEventListener("click",()=>limpiarTramo(n));
+    const fill=box.querySelector(".btn-fill-cap"); if(fill)fill.addEventListener("click",()=>fillFromCapital(n));
+  });
+  updateConsolidado();
+}
+function capitalStripHtml(){
+  return `<div class="capital-box" style="margin-bottom:22px">
+    <div class="cap-left"><span class="eyebrow">Monto a invertir</span><h2 class="num" id="capMirror">${STATE.capital?fmtCLP(STATE.capital):"$0"}</h2><p>Distribuye este excedente entre los dos tramos. El no asignado se muestra abajo.</p></div>
+    <div class="cap-input-wrap"><label for="capitalInput2">Editar excedente (CLP)</label>
+      <input type="text" inputmode="numeric" id="capitalInput2" class="cap-input num" placeholder="$0" value="${STATE.capital?nfInt.format(STATE.capital):""}" autocomplete="off">
+      <span class="cap-hint" id="capStripHint"></span></div></div>`;
+}
+function tramoCardHtml(n){
+  const m=TRAMO_META[n];
+  return `<div class="tramo-card ${m.cls}" id="tramo-${n}">
+    <div class="t-head"><h2>${m.title}</h2><p>${m.desc}</p></div>
+    <div class="tramo-body">
+      <div class="amount-row">
+        <div class="fg"><label for="amt-${n}">Monto a asignar al tramo (CLP)</label>
+          <input type="text" inputmode="numeric" class="t-amount" id="amt-${n}" placeholder="$0" value="${STATE.tramos[n].monto?nfInt.format(STATE.tramos[n].monto):""}"></div>
+        <button class="btn ghost sm btn-fill-cap" type="button">Usar excedente restante</button>
+        <button class="btn ghost sm btn-distribuir" type="button">Distribuir en partes iguales</button>
+        <button class="btn ghost sm btn-limpiar" type="button">Limpiar asignación</button>
+        <div class="alloc-status" id="alloc-${n}"></div>
+      </div>
+      <div class="table-scroll" style="max-height:none"><table class="data"><thead id="thead-${n}"></thead><tbody id="tbody-${n}"></tbody></table></div>
+      <div class="summary-grid" id="summary-${n}"></div>
+    </div></div>`;
+}
+function buildTramoTable(n){
+  const eleg=elegiblesTramo(n), sel=STATE.tramos[n].sel;
+  const head=["","Fondo","AGF","Serie","Riesgo","Dur.","TAC","Rent365d","% AAA/N1","% AA","Emis.","Patrim. serie","% asignado"];
+  document.getElementById("thead-"+n).innerHTML="<tr>"+head.map((h,i)=>`<th class="${i>=5&&i<=11?'right':''} no-sort">${h}</th>`).join("")+"</tr>";
+  const tb=document.getElementById("tbody-"+n);
+  if(!eleg.length){ tb.innerHTML=`<tr><td class="empty-state" colspan="13">No hay fondos elegibles para este tramo según los filtros y reglas actuales.</td></tr>`; updateTramoSummary(n); return; }
+  tb.innerHTML=eleg.map(f=>{ const s=sel[f._id]||{checked:false,pct:0}; const rk=riskLevel(f);
+    return `<tr data-id="${f._id}">
+      <td><input type="checkbox" class="t-check" ${s.checked?"checked":""} aria-label="Seleccionar fondo"></td>
+      <td class="trunc" title="${escAttr(f.Fondo||"")}">${escHtml(f.Fondo||"")}</td>
+      <td>${escHtml(f.AGF||"")}</td><td>${escHtml(String(f.Serie||""))}</td>
+      <td><span class="risk-badge" style="background:${rk.color}">${rk.label}</span></td>
+      <td class="right num">${fmtNum(f.DuracionDias)}</td><td class="right num">${fmtPct(f.TAC)}</td><td class="right num">${fmtPct(f.Rent365d)}</td>
+      <td class="right num">${fmtPct(f.Pct_AAA_N1)}</td><td class="right num">${fmtPct(f.Pct_AA)}</td><td class="right num">${fmtNum(f.N_Emisores)}</td>
+      <td class="right num">${fmtPatrimonio(f.PatrimonioSerie,f.Moneda)}</td>
+      <td class="right"><input type="number" class="pct-input t-pct num" min="0" max="100" step="0.5" value="${s.pct||""}" ${s.checked?"":"disabled"} aria-label="Porcentaje asignado"></td>
+    </tr>`; }).join("");
+  tb.querySelectorAll("tr[data-id]").forEach(tr=>{ const id=tr.dataset.id,cb=tr.querySelector(".t-check"),pct=tr.querySelector(".t-pct");
+    cb.addEventListener("change",()=>{ if(!sel[id])sel[id]={checked:false,pct:0}; sel[id].checked=cb.checked; pct.disabled=!cb.checked; if(!cb.checked){sel[id].pct=0;pct.value="";} updateTramoSummary(n);updateConsolidado();renderMemo(); });
+    pct.addEventListener("input",()=>{ if(!sel[id])sel[id]={checked:true,pct:0}; sel[id].pct=pct.value===""?0:toNum(pct.value)||0; updateTramoSummary(n);updateConsolidado();renderMemo(); });
+  });
+  updateTramoSummary(n);
+}
+function selectedFondos(n){ const sel=STATE.tramos[n].sel; return elegiblesTramo(n).filter(f=>sel[f._id]&&sel[f._id].checked).map(f=>({f,pct:sel[f._id].pct||0})); }
+function distribuirIgual(n){ const chosen=selectedFondos(n); if(!chosen.length)return; const per=Math.floor((100/chosen.length)*100)/100;
+  chosen.forEach((c,i)=>{STATE.tramos[n].sel[c.f._id].pct=i===chosen.length-1?+(100-per*(chosen.length-1)).toFixed(2):per;}); buildTramoTable(n);updateConsolidado();renderMemo(); }
+function limpiarTramo(n){ STATE.tramos[n].sel={}; buildTramoTable(n);updateConsolidado();renderMemo(); }
+function fillFromCapital(n){ const other=n===1?2:1; const rem=Math.max(0,STATE.capital-(STATE.tramos[other].monto||0)); STATE.tramos[n].monto=rem;
+  const inp=document.querySelector("#tramo-"+n+" .t-amount"); if(inp)inp.value=rem?nfInt.format(rem):""; updateTramoSummary(n);updateConsolidado();updateCapitalHints();renderMemo(); }
+
+function tramoTotals(n){
+  const monto=STATE.tramos[n].monto||0, chosen=selectedFondos(n);
+  const sumPct=chosen.reduce((a,c)=>a+(c.pct||0),0);
+  let asignado=0,comision=0,brutaAbs=0,netaAbs=0; const durPairs=[],tacPairs=[],rentPairs=[];
+  chosen.forEach(c=>{ const mAsig=monto*(c.pct||0)/100; asignado+=mAsig;
+    const tac=toNum(c.f.TAC)||0,rent=toNum(c.f.Rent365d)||0,dur=toNum(c.f.DuracionDias);
+    comision+=mAsig*tac; brutaAbs+=mAsig*rent; netaAbs+=mAsig*(rent-tac);
+    durPairs.push([dur,mAsig]);tacPairs.push([tac,mAsig]);rentPairs.push([rent,mAsig]); });
+  return { monto,asignado,sumPct,comision,brutaAbs,netaAbs,nSel:chosen.length,durW:weightedAvg(durPairs),tacW:weightedAvg(tacPairs),rentW:weightedAvg(rentPairs),chosen };
+}
+function updateTramoSummary(n){
+  const t=tramoTotals(n), alloc=document.getElementById("alloc-"+n);
+  if(t.nSel===0){alloc.className="alloc-status";alloc.textContent="";}
+  else if(Math.abs(t.sumPct-100)<0.01){alloc.className="alloc-status good";alloc.textContent="Suma = 100%";}
+  else{alloc.className="alloc-status bad";alloc.textContent="Suma = "+nf2.format(t.sumPct)+"% (debe ser 100%)";}
+  const cells=[
+    {l:"Monto del tramo",v:fmtCLP(t.monto)},{l:"Monto asignado",v:fmtCLP(t.asignado)},
+    {l:"Comisión anual estim.",v:fmtCLP(t.comision)},{l:"Rent. bruta referencial",v:fmtCLP(t.brutaAbs)},
+    {l:"Rent. neta referencial",v:fmtCLP(t.netaAbs)},{l:"Duración prom. ponderada",v:t.durW===null?DASH:fmtInt(t.durW)+" días"},
+    {l:"TAC prom. ponderada",v:fmtPct(t.tacW)},{l:"Rent365d prom. ponderada",v:fmtPct(t.rentW)}
+  ];
+  document.getElementById("summary-"+n).innerHTML=cells.map(c=>`<div class="summary-cell"><div class="s-label">${c.l}</div><div class="s-val num">${c.v}</div></div>`).join("");
+}
+function updateConsolidado(){
+  const t1=tramoTotals(1),t2=tramoTotals(2);
+  const totalMonto=t1.monto+t2.monto,totalAsig=t1.asignado+t2.asignado,comision=t1.comision+t2.comision,bruta=t1.brutaAbs+t2.brutaAbs,neta=t1.netaAbs+t2.netaAbs;
+  const durW=weightedAvg([[t1.durW,t1.asignado],[t2.durW,t2.asignado]]),tacW=weightedAvg([[t1.tacW,t1.asignado],[t2.tacW,t2.asignado]]),rentW=weightedAvg([[t1.rentW,t1.asignado],[t2.rentW,t2.asignado]]);
+  const pct1=totalMonto?t1.monto/totalMonto*100:0,pct2=totalMonto?t2.monto/totalMonto*100:0;
+  const cells=[
+    {l:"Total propuesto (ambos tramos)",v:fmtCLP(totalMonto)},{l:"Caja Operativa",v:fmtCLP(t1.monto)},{l:"Reserva Mediano Plazo",v:fmtCLP(t2.monto)},
+    {l:"Distribución entre tramos",v:totalMonto?`${nf2.format(pct1)}% / ${nf2.format(pct2)}%`:DASH},
+    {l:"Comisión anual total estim.",v:fmtCLP(comision)},{l:"Rent. bruta referencial total",v:fmtCLP(bruta)},{l:"Rent. neta referencial total",v:fmtCLP(neta)},
+    {l:"Duración prom. ponderada total",v:durW===null?DASH:fmtInt(durW)+" días"},{l:"TAC prom. ponderada total",v:fmtPct(tacW)},{l:"Rent365d prom. ponderada total",v:fmtPct(rentW)}
+  ];
+  const el=document.getElementById("consolidado"); if(!el)return;
+  const capital=STATE.capital, noAsigCap=Math.max(0,capital-totalMonto);
+  const denom=Math.max(capital,totalMonto)||1;
+  const segs=[{n:"Caja Operativa",v:t1.monto,c:"#20304A"},{n:"Reserva Mediano Plazo",v:t2.monto,c:"#45566E"},{n:"Excedente sin asignar",v:noAsigCap,c:"#C2C7CE"}].filter(s=>s.v>0);
+  const bar=(capital||totalMonto)?`<div class="stacked" style="margin-bottom:14px">`+segs.map(s=>`<div class="seg" style="width:${(s.v/denom*100).toFixed(2)}%;background:${s.c};color:${s.c==='#C2C7CE'?'#1C2733':'#F5F6F8'}" title="${s.n}: ${fmtCLP(s.v)}"></div>`).join("")+`</div><div class="stacked-legend" style="margin-bottom:16px">`+segs.map(s=>`<span class="li"><span class="sq" style="background:${s.c}"></span>${s.n} — <strong>${fmtCLP(s.v)}</strong></span>`).join("")+`</div>`:"";
+  el.innerHTML=bar+`<div class="summary-grid">`+cells.map(c=>`<div class="summary-cell"><div class="s-label">${c.l}</div><div class="s-val num">${c.v}</div></div>`).join("")+`</div>`;
+  updateCapitalHints();
+}
+
+/* ---------- Capital compartido ---------- */
+function setCapital(v){ STATE.capital=v||0; const mirror=document.getElementById("capMirror"); if(mirror)mirror.textContent=STATE.capital?fmtCLP(STATE.capital):"$0";
+  const main=document.getElementById("capitalInput"); if(main&&document.activeElement!==main)main.value=STATE.capital?nfInt.format(STATE.capital):"";
+  updateCapitalHints(); updateConsolidado===undefined?null:null; renderMemo(); }
+function updateCapitalHints(){
+  const t1m=STATE.tramos[1].monto||0,t2m=STATE.tramos[2].monto||0, asignadoTramos=t1m+t2m, resto=STATE.capital-asignadoTramos;
+  const txt = !STATE.capital ? "Aún no has ingresado un monto." :
+    resto>0 ? `Asignado a tramos: <b>${fmtCLP(asignadoTramos)}</b> · Sin asignar: <b>${fmtCLP(resto)}</b>` :
+    resto<0 ? `Asignado a tramos: <b>${fmtCLP(asignadoTramos)}</b> · <b style="color:var(--rust)">Excede el monto en ${fmtCLP(-resto)}</b>` :
+    `Todo el monto está asignado a tramos.`;
+  const h1=document.getElementById("capitalHint"); if(h1)h1.innerHTML=txt;
+  const h2=document.getElementById("capStripHint"); if(h2)h2.innerHTML=txt;
+}
+function parseMiles(str){ const d=String(str).replace(/[^\d]/g,""); return d?parseInt(d,10):0; }
+
+/* ============================================================
+   TAB 4 — REGLAS
+   ============================================================ */
+function renderReglas(){
+  const wrap=document.getElementById("reglasWrap"); if(wrap.dataset.built)return; wrap.dataset.built="1";
+  const cajaRules=[
+    ["Duración menor a 90 días","Asegura alta liquidez relativa y baja sensibilidad a movimientos de tasa, coherente con excedentes que podrían requerirse en el corto plazo."],
+    ["Clasificación AAA o AAA/AA construida","Prioriza calidad crediticia máxima para preservar capital en el tramo más sensible a la operación."],
+    ["Moneda CLP","Evita riesgo cambiario sobre caja operacional que se usa en pesos."],
+    ["Sin exposición BB o menor","Excluye instrumentos especulativos que aumentan el riesgo de pérdida de capital."],
+    ["Exposición sin clasificación ≤ 10%","Limita la porción de cartera sin evaluación de riesgo disponible."],
+    ["PatrimonioSerie mínimo recomendado","Un patrimonio suficiente reduce el riesgo de cierre de serie y mejora la liquidez efectiva de rescate."],
+    ["Diversificación mínima por emisores","Reduce la concentración en pocos emisores, mitigando el impacto de un evento crediticio individual."]
+  ];
+  const reservaRules=[
+    ["Duración entre 90 y 365 días","Acepta mayor horizonte a cambio de potencial rentabilidad, manteniéndose dentro de plazos manejables para reserva de mediano plazo."],
+    ["Clasificación AAA, AAA/AA o AA construida","Amplía levemente el universo manteniendo alta calidad crediticia."],
+    ["Moneda CLP","Evita riesgo cambiario sobre reservas en pesos."],
+    ["Sin exposición BB o menor","Mantiene el foco en instrumentos de grado de inversión."],
+    ["Exposición sin clasificación ≤ 10%","Limita la porción de cartera sin evaluación disponible."],
+    ["Mayor tolerancia a duración, con control de riesgo","Se admite algo más de duración, pero se conservan los límites de calidad y diversificación."]
+  ];
+  const exclusiones=["Fondos APV.","Fondos accionarios.","Fondos mixtos, salvo aprobación explícita.","Moneda distinta de CLP, salvo cobertura explícita.","Clasificación BB o menor.","Fondos con concentración excesiva en pocos emisores.","Fondos con información insuficiente para evaluación."];
+  const consideraciones=["La rentabilidad pasada no garantiza resultados futuros.","La liquidez debe evaluarse considerando reglamento interno y condiciones de rescate.","La duración puede afectar la sensibilidad a tasas.","La diversificación no elimina el riesgo, pero ayuda a controlarlo.","La decisión final requiere aprobación interna."];
+  wrap.innerHTML=`<div class="section"><div class="section-body">
+    <div class="rule-block"><h3>1 · Objetivo de la política</h3><p style="font-family:var(--font-serif);font-size:15px;color:var(--ash);max-width:840px;line-height:1.6">La política busca que los excedentes de caja permanezcan trabajando mientras no son requeridos por la operación, manteniendo prioridad en preservación de capital, disponibilidad de fondos y control de riesgos.</p></div>
+    <div class="rule-block"><h3>2 · Reglas para Caja Operativa</h3>${cajaRules.map(r=>`<div class="rule-item"><div class="r-title">${r[0]}</div><div class="r-why">${r[1]}</div></div>`).join("")}</div>
+    <div class="rule-block"><h3>3 · Reglas para Reserva Mediano Plazo</h3>${reservaRules.map(r=>`<div class="rule-item t2"><div class="r-title">${r[0]}</div><div class="r-why">${r[1]}</div></div>`).join("")}</div>
+    <div class="rule-block"><h3>4 · Exclusiones absolutas</h3><ul class="excl-list">${exclusiones.map(e=>`<li>${e}</li>`).join("")}</ul></div>
+    <div class="rule-block"><h3>5 · Consideraciones</h3><ul class="consid-list">${consideraciones.map(c=>`<li>${c}</li>`).join("")}</ul></div>
+    <div class="reglas-note">Reglas vigentes acordadas con Sergio. Cualquier modificación requiere validación del responsable financiero.</div>
+  </div></div>`;
+}
+
+/* ============================================================
+   TAB 5 — MEMO
+   ============================================================ */
+function memoTramoTable(n){
+  const t=tramoTotals(n); if(!t.chosen.length)return `<p style="color:#777;font-style:italic">Sin fondos seleccionados en este tramo.</p>`;
+  const rows=t.chosen.map(c=>{const f=c.f,mAsig=t.monto*(c.pct||0)/100;
+    return `<tr><td>${escHtml(f.Fondo||"")}</td><td>${escHtml(f.AGF||"")}</td><td>${escHtml(String(f.Serie||""))}</td><td style="text-align:right">${fmtCLP(mAsig)}</td><td style="text-align:right">${nf2.format(c.pct||0)}%</td><td style="text-align:right">${fmtPct(f.TAC)}</td><td style="text-align:right">${fmtPct(f.Rent365d)}</td><td>${escHtml(f.ClasificacionRiesgo||"—")}</td><td style="text-align:right">${fmtNum(f.DuracionDias)}</td><td style="text-align:right">${fmtNum(f.N_Emisores)}</td></tr>`;}).join("");
+  return `<table class="memo-tbl"><thead><tr><th>Fondo</th><th>AGF</th><th>Serie</th><th>Monto asignado</th><th>% asig.</th><th>TAC</th><th>Rent365d</th><th>Clasif.</th><th>Dur.</th><th>N° emis.</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+function renderMemo(){
+  const el=document.getElementById("memo-content"); if(!STATE.loaded){el.innerHTML='<p class="loading-note">Los datos aún no están disponibles.</p>';return;}
+  const t1=tramoTotals(1),t2=tramoTotals(2);
+  const totalMonto=t1.monto+t2.monto,totalAsig=t1.asignado+t2.asignado,comision=t1.comision+t2.comision,bruta=t1.brutaAbs+t2.brutaAbs,neta=t1.netaAbs+t2.netaAbs;
+  const durW=weightedAvg([[t1.durW,t1.asignado],[t2.durW,t2.asignado]]),tacW=weightedAvg([[t1.tacW,t1.asignado],[t2.tacW,t2.asignado]]),rentW=weightedAvg([[t1.rentW,t1.asignado],[t2.rentW,t2.asignado]]);
+  const nSel=t1.nSel+t2.nSel;
+  const pct1=totalMonto?nf2.format(t1.monto/totalMonto*100)+"%":"—",pct2=totalMonto?nf2.format(t2.monto/totalMonto*100)+"%":"—";
+  const fechaDato=STATE.fondos.length?fmtFechaCorta(STATE.fondos[0].FechaDato):"—"; const now=new Date();
+  el.innerHTML=`
+    <h2 class="memo-title">Propuesta de asignación de excedentes de tesorería</h2>
+    <div class="memo-date">Fecha de emisión: ${fmtFechaLarga(now)}</div>
+    <div class="memo-section"><h3 class="memo-h">1. Contexto</h3>
+      <p>La presente propuesta tiene por objetivo asignar excedentes de caja de Wild Lama en fondos mutuos de deuda, priorizando preservación de capital, liquidez operacional y rentabilidad ajustada por riesgo. La propuesta considera un monto total de <strong>${fmtCLP(totalMonto)}</strong>, distribuido entre Caja Operativa (${fmtCLP(t1.monto)}, ${pct1}) y Reserva Mediano Plazo (${fmtCLP(t2.monto)}, ${pct2}). Se han seleccionado <strong>${nSel}</strong> ${nSel===1?"fondo":"fondos"} en total. Fecha del dato base: ${fechaDato}.</p></div>
+    <div class="memo-section"><h3 class="memo-h">2. Fuente de datos</h3>
+      <p>La información utilizada proviene de la Comisión para el Mercado Financiero (CMF) — Estudios de Rentabilidades, Costos y Cartera, procesada vía Apps Script Wild Lama. Fecha de datos de fondos: ${fechaDato}. Última actualización del endpoint: ${fmtTimestamp(STATE.fondosMeta.actualizado)}.</p></div>
+    <div class="memo-section"><h3 class="memo-h">3. Detalle por tramo</h3>
+      <p style="margin-bottom:4px"><strong>Caja Operativa</strong></p>${memoTramoTable(1)}
+      <p style="margin:16px 0 4px"><strong>Reserva Mediano Plazo</strong></p>${memoTramoTable(2)}</div>
+    <div class="memo-section"><h3 class="memo-h">4. Resumen consolidado</h3>
+      <table class="memo-tbl"><tbody>
+        <tr><td>Total invertido</td><td style="text-align:right">${fmtCLP(totalAsig)}</td></tr>
+        <tr><td>Comisión anual estimada</td><td style="text-align:right">${fmtCLP(comision)}</td></tr>
+        <tr><td>Rentabilidad bruta histórica referencial</td><td style="text-align:right">${fmtCLP(bruta)}</td></tr>
+        <tr><td>Rentabilidad neta histórica referencial</td><td style="text-align:right">${fmtCLP(neta)}</td></tr>
+        <tr><td>Duración promedio ponderada</td><td style="text-align:right">${durW===null?DASH:fmtInt(durW)+" días"}</td></tr>
+        <tr><td>TAC promedio ponderada</td><td style="text-align:right">${fmtPct(tacW)}</td></tr>
+        <tr><td>Rent365d promedio ponderada</td><td style="text-align:right">${fmtPct(rentW)}</td></tr>
+      </tbody></table></div>
+    <div class="memo-section"><h3 class="memo-h">5. Reglas aplicadas</h3>
+      <p><strong>Caja Operativa:</strong> duración &lt; 90 días; clasificación AAA o AAA/AA construida; moneda CLP; sin exposición BB o menor; sin clasificación ≤ 10%; patrimonio de serie y diversificación de emisores mínimos.</p>
+      <p><strong>Reserva Mediano Plazo:</strong> duración entre 90 y 365 días; clasificación AAA, AAA/AA o AA construida; moneda CLP; sin exposición BB o menor; sin clasificación ≤ 10%; mayor tolerancia a duración con control de riesgo.</p>
+      <p style="color:#555">Exclusiones absolutas: fondos APV, accionarios, mixtos (salvo aprobación), moneda distinta de CLP (salvo cobertura), clasificación BB o menor, concentración excesiva e información insuficiente.</p></div>
+    <div class="memo-section"><h3 class="memo-h">6. Advertencia</h3>
+      <p>Los cálculos presentados son referenciales y se basan en información histórica disponible. No constituyen recomendación de inversión, promesa de rentabilidad ni garantía de liquidez. La decisión final debe ser validada por el responsable financiero correspondiente.</p></div>
+    <div class="memo-section memo-signatures"><p>Elaborado por: _______________________________</p><p>Aprobado por: _______________________________</p></div>
+    <div class="memo-foot">Documento generado por herramienta interna Wild Lama — ${fmtTimestamp(now)}</div>`;
+}
+
+/* ============================================================
+   UTILIDADES / NAV
+   ============================================================ */
+function escHtml(s){ return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function escAttr(s){ return escHtml(s); }
+
+function initNav(){
+  document.querySelectorAll(".tab-btn").forEach(btn=>btn.addEventListener("click",()=>{
+    document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+    document.querySelectorAll(".tab-panel").forEach(p=>p.classList.remove("active"));
+    btn.classList.add("active"); const tab=btn.dataset.tab;
+    document.getElementById("tab-"+tab).classList.add("active");
+    if(tab==="reglas")renderReglas();
+    if(tab==="inversiones")renderInversiones();
+    if(tab==="dashboard"&&STATE.loaded)drawScatter(getFiltered());
+  }));
+  document.getElementById("btnAddInv").addEventListener("click",()=>addMov("inversion"));
+  document.getElementById("btnAddRet").addEventListener("click",()=>addMov("retiro"));
+  document.getElementById("btnClearHoldings").addEventListener("click",clearHoldings);
+  document.getElementById("filtersToggle").addEventListener("click",()=>document.getElementById("filtersBox").classList.toggle("collapsed"));
+  document.getElementById("btnResetFilters").addEventListener("click",resetFilters);
+  document.getElementById("btnMoreCols").addEventListener("click",()=>{STATE.showMoreCols=!STATE.showMoreCols;renderExplorer(getFiltered());});
+  document.getElementById("btnExportCsv").addEventListener("click",exportCsv);
+  document.getElementById("btnRefresh").addEventListener("click",loadAll);
+  document.getElementById("btnRetry").addEventListener("click",loadAll);
+  document.getElementById("btnPrint").addEventListener("click",()=>window.print());
+  // Monto a invertir (Dashboard)
+  const cap=document.getElementById("capitalInput");
+  cap.addEventListener("input",e=>{ const v=parseMiles(e.target.value); STATE.capital=v; e.target.value=v?nfInt.format(v):""; setCapital(v); });
+  window.addEventListener("resize",()=>{ if(STATE.loaded&&document.getElementById("tab-dashboard").classList.contains("active"))drawScatter(getFiltered()); });
+}
+
+initNav();
+loadAll();
+</script>
+</body>
+</html>
