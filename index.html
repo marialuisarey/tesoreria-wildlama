@@ -678,6 +678,18 @@ function extractMacro(json){
     return { indicador:g(["indicador"])??"", valor:g(["valor"]), fechaDato:g(["fecha dato","fechadato","fecha_dato","fecha"]), actualizado:g(["actualizado"]) }; });
 }
 
+/* Indicadores macro desde mindicador.cl (datos oficiales del Banco Central,
+   siempre el ÚLTIMO publicado). Es la fuente primaria de las tarjetas macro:
+   garantiza que UF, dólar, euro, UTM e IPC estén al día sin depender de la
+   planilla. mindicador.cl permite CORS, por lo que funciona en el navegador. */
+async function fetchMacroMindicador(){
+  const j = await fetchJson("https://mindicador.cl/api", 12000);
+  const mk = (nombre,key)=>{ const ind=j[key]; if(!ind||ind.valor==null)return null;
+    return { indicador:nombre, valor:ind.valor, fechaDato:ind.fecha?String(ind.fecha).slice(0,10):"", actualizado:j.fecha||new Date().toISOString() }; };
+  const rows=[ mk("UF","uf"), mk("Dólar observado","dolar"), mk("Euro","euro"), mk("UTM","utm"), mk("IPC","ipc") ].filter(Boolean);
+  return rows.length?rows:null;
+}
+
 async function loadAll(){
   setStatus("loading"); hideError();
   try{
@@ -685,11 +697,18 @@ async function loadAll(){
     STATE.fondos = normalizeFondos(fondosJson);
     STATE.fondosMeta = { actualizado:fondosJson.actualizado||null, total:fondosJson.total!=null?fondosJson.total:STATE.fondos.length, hoja:fondosJson.hoja||"" };
 
-    /* Intento de hoja Macro; si no, respaldo local. */
+    /* Macro: mindicador.cl (Banco Central, siempre el último publicado) como
+       fuente primaria; si falla, la hoja Macro de la planilla; si no, respaldo local. */
     STATE.macroOk=false; STATE.macro=[]; STATE.macroSource="";
-    for(const url of MACRO_URL_CANDIDATES){
-      try{ const mj=await fetchJson(withBust(url), 12000); if(mj && mj.hoja && mj.hoja!=="Fondos"){ const m=extractMacro(mj); if(m&&m.length){ STATE.macro=m; STATE.macroOk=true; STATE.macroSource="live"; break; } } }
-      catch(e){}
+    try{
+      const mm = await fetchMacroMindicador();
+      if(mm && mm.length){ STATE.macro=mm; STATE.macroOk=true; STATE.macroSource="live"; }
+    }catch(e){}
+    if(!STATE.macroOk){
+      for(const url of MACRO_URL_CANDIDATES){
+        try{ const mj=await fetchJson(withBust(url), 12000); if(mj && mj.hoja && mj.hoja!=="Fondos"){ const m=extractMacro(mj); if(m&&m.length){ STATE.macro=m; STATE.macroOk=true; STATE.macroSource="live"; break; } } }
+        catch(e){}
+      }
     }
     if(!STATE.macroOk){ STATE.macro=MACRO_FALLBACK; STATE.macroSource="fallback"; }
 
@@ -1291,19 +1310,20 @@ async function guardarEnSheet(tipo){
     await fetch(BASE_URL, { method:"POST", mode:"no-cors", redirect:"follow",
       headers:{ "Content-Type":"text/plain;charset=utf-8" }, body:JSON.stringify(payload) });
   }catch(err){ console.error(err); setPersistMsg(tipo,"Error de conexión al guardar."); return false; }
-  /* Confirmar releyendo la hoja. */
-  try{
-    await new Promise(r=>setTimeout(r,900));
-    const url = withBust(BASE_URL + "?hoja=" + encodeURIComponent(P.hoja));
-    const j = await fetchJson(url, 15000);
-    const n = (j && j.hoja!=="Fondos" && Array.isArray(j.datos)) ? j.datos.filter(r=>Object.values(r).some(v=>v!=null&&v!=="")).length : 0;
-    if(filas.length>0 && n===0){
-      setPersistMsg(tipo,"No se guardó. Revisa que el Apps Script esté redesplegado como \"Versión nueva\" y con acceso \"Cualquiera\".");
-      return false;
-    }
-    setPersistMsg(tipo,"Guardado ✓ "+n+" registro"+(n===1?"":"s")+" en la planilla · "+nowHM());
-    return true;
-  }catch(e){ setPersistMsg(tipo,"Enviado, pero no pude confirmar la lectura. Revisa la planilla."); return true; }
+  /* Confirmar releyendo la hoja. El POST no-cors responde antes de que el
+     servidor termine de escribir, así que reintentamos la lectura varias veces. */
+  const target = filas.length;
+  for(let intento=1; intento<=4; intento++){
+    try{
+      await new Promise(r=>setTimeout(r, 800*intento));
+      const j = await fetchJson(BASE_URL + "?hoja=" + encodeURIComponent(P.hoja) + "&_t=" + Date.now(), 15000);
+      const n = (j && j.hoja!=="Fondos" && Array.isArray(j.datos)) ? j.datos.filter(r=>Object.values(r).some(v=>v!=null&&v!=="")).length : 0;
+      if(n>=target && target>0){ setPersistMsg(tipo,"Guardado ✓ "+n+" registro"+(n===1?"":"s")+" en la planilla · "+nowHM()); return true; }
+      if(target===0){ setPersistMsg(tipo,"Guardado ✓ (planilla vacía) · "+nowHM()); return true; }
+    }catch(e){ /* seguir reintentando */ }
+  }
+  setPersistMsg(tipo,"Enviado, pero la planilla aún no refleja los cambios. Reintenta en unos segundos; si persiste, revisa que el Apps Script esté desplegado como \"Versión nueva\" con acceso \"Cualquiera\".");
+  return false;
 }
 
 /* Carga un tipo desde su hoja. Silencioso si la hoja no existe aún. */
@@ -1454,7 +1474,7 @@ function renderHoldSummary(){
     {l:"Capital neto vigente",v:fmtCLP(capitalNeto)},
     {l:"N° de fondos",v:fmtInt(groups.length)},
     {l:"Interés ganado este año",v:fmtCLP(interesYTD)},
-    {l:"Interés ganado este mes",v:fmtCLP(interesMes)},
+    {l:"Interés ganado en "+mesActualNombre(),v:fmtCLP(interesMes)},
     {l:"Interés ganado total ref.",v:fmtCLP(interesTotal)},
     {l:"Rentab. total efectiva ref.",v:rentEfectTotal===null?DASH:nf2.format(rentEfectTotal*100)+"%"},
     {l:"Rent365d ponderada",v:fmtPct(rentW)},
@@ -1726,18 +1746,36 @@ function refreshLoanRow(id){
   if(STATE.loanExpanded[id]) renderPrestamos();
 }
 
+/* Nombre del mes actual (ej. "julio") para las etiquetas de interés mensual. */
+function mesActualNombre(){ return MESES[new Date().getMonth()]; }
+/* Suma meses a una fecha (para fechas de pago de un préstamo). */
+function addMeses(date,n){ const d=new Date(date); d.setMonth(d.getMonth()+n); return d; }
+/* Interés de un préstamo cuyas cuotas caen dentro del rango [fromTime,toTime).
+   Cada cuota k se paga en fecha_inicio + k meses; se suma su componente de interés. */
+function loanInteresRango(loan,fromTime,toTime){
+  const a=amortizacion(loan), ini=parseISOd(loan.fecha); if(!ini)return 0;
+  let s=0; a.filas.forEach(f=>{ const t=addMeses(ini,f.k).getTime(); if(t>=fromTime&&t<toTime) s+=f.interes; });
+  return s;
+}
+
 function renderLoanSummary(){
   const el=document.getElementById("loanSummary"); if(!el)return;
   const valid=STATE.loans.filter(l=>(toNum(l.monto)||0)>0);
   const totalPrestado=valid.reduce((a,l)=>a+(toNum(l.monto)||0),0);
-  let interesTotal=0; const tasaPairs=[], plazoPairs=[];
+  let interesTotal=0, interesMes=0, interesYTD=0; const tasaPairs=[], plazoPairs=[];
+  const now=new Date(), year=now.getFullYear(), month=now.getMonth();
+  const m0=new Date(year,month,1).getTime(), m1=new Date(year,month+1,1).getTime();
+  const y0=new Date(year,0,1).getTime(), y1=new Date(year+1,0,1).getTime();
   valid.forEach(l=>{ const m=loanMetrics(l); interesTotal+=m.totalInteres;
+    interesMes+=loanInteresRango(l,m0,m1); interesYTD+=loanInteresRango(l,y0,y1);
     tasaPairs.push([m.tasaAnual,m.P]); plazoPairs.push([m.n,m.P]); });
   const tasaW=weightedAvg(tasaPairs), plazoW=weightedAvg(plazoPairs);
   const rentTotalPeriodo = totalPrestado>0 ? interesTotal/totalPrestado : null;
   const cells=[
     {l:"Total prestado",v:fmtCLP(totalPrestado)},
     {l:"N° de préstamos",v:fmtInt(valid.length)},
+    {l:"Interés ganado en "+mesActualNombre(),v:fmtCLP(interesMes)},
+    {l:"Interés ganado este año",v:fmtCLP(interesYTD)},
     {l:"Interés total a generar",v:fmtCLP(interesTotal)},
     {l:"Total a recibir (capital + interés)",v:fmtCLP(totalPrestado+interesTotal)},
     {l:"Tasa anual promedio ponderada",v:tasaW===null?DASH:nf2.format(tasaW)+"%"},
@@ -1852,7 +1890,7 @@ function renderDapKpis(){
     {l:"N° de DAP registrados",v:fmtInt(valid.length)},
     {l:"Capital vigente hoy",v:fmtCLP(vigente)},
     {l:"Interés ganado este año",v:fmtCLP(interesYTD)},
-    {l:"Interés ganado este mes",v:fmtCLP(interesMes)},
+    {l:"Interés ganado en "+mesActualNombre(),v:fmtCLP(interesMes)},
     {l:"Interés total proyectado",v:fmtCLP(interesTotalProy)},
     {l:"Tasa anual promedio ponderada",v:tasaW===null?DASH:nf2.format(tasaW)+"%"}
   ];
