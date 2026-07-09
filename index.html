@@ -807,11 +807,16 @@ function renderFilters(agfs,clases,monedas,clasifs){
       <label class="fg-label">Duración (días)</label>
       <div class="range-row"><input type="number" id="fDurMin" placeholder="mín" value="${F.durMin??""}" aria-label="Duración mínima"><span style="color:#999">–</span><input type="number" id="fDurMax" placeholder="máx" value="${F.durMax??""}" aria-label="Duración máxima"></div>
       <label class="fg-label" style="margin-top:13px;">TAC máximo</label>
+      <div style="font-size:10.5px;color:var(--ink-subtle);font-family:var(--font-serif);font-style:italic;margin:-3px 0 6px;line-height:1.35">La TAC (Tasa Anual de Costos) es el costo total anual del fondo. Filtra fondos con costo mayor a este %.</div>
       <div class="input-unit"><input type="number" step="0.1" id="fTacMax" value="${F.tacMax??""}" aria-label="TAC máximo"><span class="unit">%</span></div>
       <label class="fg-label" style="margin-top:13px;">PatrimonioSerie mínimo</label>
       <div class="input-unit"><input type="number" id="fPatMin" value="${F.patMin??""}" aria-label="Patrimonio serie mínimo"><span class="unit">MM CLP</span></div>
       <label class="fg-label" style="margin-top:13px;">Búsqueda libre</label>
-      <input type="text" id="fSearch" placeholder="Fondo, AGF, Serie o RUN" value="${escAttr(F.search)}" aria-label="Búsqueda libre">
+      <div style="display:flex;gap:8px;align-items:center">
+        <input type="text" id="fSearch" list="searchSug" placeholder="Fondo, AGF, Serie o RUN" value="${escAttr(F.search)}" aria-label="Búsqueda libre">
+        <button class="btn accent sm" id="btnSearch" type="button">Buscar</button>
+      </div>
+      <datalist id="searchSug">${[...new Set(STATE.fondos.flatMap(f=>[f.Fondo,f.AGF]).filter(Boolean))].sort((a,b)=>String(a).localeCompare(String(b),"es")).map(v=>`<option value="${escAttr(v)}"></option>`).join("")}</datalist>
     </div>`;
   document.querySelectorAll('#filtersBody input[type=checkbox]').forEach(cb=>cb.addEventListener("change",e=>{
     // "Todos": agrega o quita todos los valores del grupo.
@@ -833,6 +838,8 @@ function renderFilters(agfs,clases,monedas,clasifs){
   bind("fTacMax",e=>{F.tacMax=e.target.value===""?null:toNum(e.target.value);renderAll();});
   bind("fPatMin",e=>{F.patMin=e.target.value===""?null:toNum(e.target.value);renderAll();});
   bind("fSearch",e=>{F.search=e.target.value;renderAll();});
+  const btnS=document.getElementById("btnSearch");
+  if(btnS)btnS.addEventListener("click",()=>{ const el=document.getElementById("fSearch"); F.search=el?el.value:""; renderAll(); });
 }
 function tipoMatch(f){
   const F=STATE.filters; if(!F.tipo.size)return true;
